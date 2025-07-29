@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job Hours Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="192.png" type="image/png" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🕒 Job Hours Tracker</h1>
+      <button id="theme-toggle">🌓</button>
+    </header>
+
+    <form id="hoursForm" class="card">
+      <div class="form-row">
+        <label>📅 Data</label>
+        <input type="date" id="date" required>
+      </div>
+      <div class="form-row">
+        <label>1° Entrata/Uscita</label>
+        <input type="time" id="checkin1">
+        <input type="time" id="checkout1">
+      </div>
+      <div class="form-row">
+        <label>2° Entrata/Uscita</label>
+        <input type="time" id="checkin2">
+        <input type="time" id="checkout2">
+      </div>
+      <button type="submit" class="submit-btn">➕ Aggiungi</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Entrata 1</th>
+          <th>Uscita 1</th>
+          <th>Entrata 2</th>
+          <th>Uscita 2</th>
+          <th>Totale Giornaliero</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5"><strong>Totale Mese:</strong></td>
+          <td id="monthlyTotal" colspan="2">0h 0m</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
