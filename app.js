@@ -1,28 +1,23 @@
 let currentCategory = '';
 
-document.getElementById('btnPreparazione').addEventListener('click', function() {
-  currentCategory = 'Preparazione';
-  showForm();
-});
-
-document.getElementById('btnSottovuoto').addEventListener('click', function() {
-  currentCategory = 'Sottovuoto';
-  showForm();
-});
-
-document.getElementById('btnAbbattuto').addEventListener('click', function() {
-  currentCategory = 'Abbattuto -18°';
-  showForm();
-});
-
-document.getElementById('btnDecongelato').addEventListener('click', function() {
-  currentCategory = 'Decongelato';
-  showForm();
+document.querySelectorAll('button[id^="btn"]').forEach(button => {
+  button.addEventListener('click', function() {
+    currentCategory = this.textContent;
+    showForm();
+    highlightActiveButton();
+  });
 });
 
 function showForm() {
   document.getElementById('formContainer').style.display = 'block';
   document.getElementById('foodForm').reset();
+  document.getElementById('category').value = currentCategory;
+}
+
+function highlightActiveButton() {
+  document.querySelectorAll('button[id^="btn"]').forEach(button => {
+    button.style.backgroundColor = button.textContent === currentCategory ? '#45a049' : '#4CAF50';
+  });
 }
 
 document.getElementById('foodForm').addEventListener('submit', function(e) {
@@ -32,8 +27,9 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
   const prodotto = document.getElementById('prodotto').value;
   const quantita = document.getElementById('quantita').value || 'N/A';
   const scadenza = document.getElementById('scadenza').value;
+  const category = document.getElementById('category').value;
 
-  const table = document.getElementById(`${currentCategory.toLowerCase()}Table`).getElementsByTagName('tbody')[0];
+  const table = getTableByCategory(category);
   const newRow = table.insertRow();
   newRow.innerHTML = `
     <td>${data}</td>
@@ -45,6 +41,38 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
   document.getElementById('dataContainer').style.display = 'block';
   document.getElementById('formContainer').style.display = 'none';
 });
+
+function getTableByCategory(category) {
+  let table = document.getElementById(`${category.toLowerCase()}Table`);
+  if (!table) {
+    table = createTableForCategory(category);
+  }
+  return table;
+}
+
+function createTableForCategory(category) {
+  const container = document.getElementById('tablesContainer');
+  const tableContainer = document.createElement('div');
+  tableContainer.id = `${category.toLowerCase()}Container`;
+
+  const table = document.createElement('table');
+  table.id = `${category.toLowerCase()}Table`;
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Prodotto</th>
+        <th>Quantità</th>
+        <th>Scadenza</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+  tableContainer.appendChild(table);
+  container.appendChild(tableContainer);
+
+  return table;
+}
 
 document.getElementById('exportPdfBtn').addEventListener('click', function () {
   const element = document.getElementById('dataContainer');
