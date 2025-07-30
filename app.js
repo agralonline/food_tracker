@@ -1,11 +1,7 @@
-// Wait for the DOM to fully load
 document.addEventListener('DOMContentLoaded', function () {
   // Set today's date in DD/MM/YYYY format
   const today = new Date();
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
-  const formattedDate = `${day}/${month}/${year}`;
+  const formattedDate = today.toLocaleDateString('it-IT');
   document.getElementById('data').value = formattedDate;
 
   // Load saved items from localStorage
@@ -29,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Reset form fields
     document.getElementById('foodForm').reset();
+    document.getElementById('data').value = formattedDate;
   });
 });
 
@@ -73,4 +70,19 @@ function groupEntriesByScelta() {
       groupHeader.innerHTML = `<td colspan="5"><strong>${group}</strong></td>`;
       table.getElementsByTagName('tbody')[0].appendChild(groupHeader);
 
-      g
+      groups[group].forEach(row => {
+        table.getElementsByTagName('tbody')[0].appendChild(row);
+      });
+    }
+  }
+}
+
+// Load saved items from localStorage
+function loadDataFromLocalStorage() {
+  const savedData = JSON.parse(localStorage.getItem('foodItems')) || [];
+  const prodottoSelect = document.getElementById('prodotto');
+  const table = document.getElementById('foodTable').getElementsByTagName('tbody')[0];
+
+  // Populate the product dropdown with unique product names
+::contentReference[oaicite:17]{index=17}
+ 
