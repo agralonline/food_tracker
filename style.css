@@ -120,3 +120,33 @@ th {
 #exportPdfBtn:hover {
   background-color: #0056b3;
 }
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.controls button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.controls button:hover {
+  background-color: #45a049;
+}
+
+.controls button.active {
+  background-color: #2e7d32;
+}
+
+#sliderContainer input[type="range"] {
+  cursor: pointer;
+}
