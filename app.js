@@ -1,21 +1,39 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Wait for the DOM to fully load
+document.addEventListener('DOMContentLoaded', function () {
+  // Set today's date in DD/MM/YYYY format
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const year = today.getFullYear();
   const formattedDate = `${day}/${month}/${year}`;
-
   document.getElementById('data').value = formattedDate;
+
+  // Load saved items from localStorage
+  loadDataFromLocalStorage();
+
+  // Handle form submission
+  document.getElementById('foodForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const data = document.getElementById('data').value;
+    const prodotto = document.getElementById('prodotto').value;
+    const quantita = document.getElementById('quantita').value || 'N/A';
+    const scadenza = document.getElementById('scadenza').value;
+    const scelta = document.getElementById('scelta').value;
+
+    // Add new row to the table
+    addRowToTable(data, prodotto, quantita, scelta, scadenza);
+
+    // Save updated data to localStorage
+    saveDataToLocalStorage();
+
+    // Reset form fields
+    document.getElementById('foodForm').reset();
+  });
 });
-document.getElementById('foodForm').addEventListener('submit', function(e) {
-  e.preventDefault();
 
-  const data = document.getElementById('data').value;
-  const prodotto = document.getElementById('prodotto').value;
-  const quantita = document.getElementById('quantita').value || 'N/A';
-  const scadenza = document.getElementById('scadenza').value;
-  const scelta = document.getElementById('scelta').value;
-
+// Add a new row to the table
+function addRowToTable(data, prodotto, quantita, scelta, scadenza) {
   const table = document.getElementById('foodTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
   newRow.innerHTML = `
@@ -25,18 +43,10 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
     <td>${scelta}</td>
     <td>${scadenza}</td>
   `;
-
-  // Reset form fields
-  document.getElementById('foodForm').reset();
-
-  // Keep the form visible for adding more items
-  document.getElementById('formContainer').style.display = 'block';
-  document.getElementById('dataContainer').style.display = 'block';
-
-  // Group entries by 'Scelta'
   groupEntriesByScelta();
-});
+}
 
+// Group entries by 'Scelta' and display them
 function groupEntriesByScelta() {
   const table = document.getElementById('foodTable');
   const rows = table.getElementsByTagName('tbody')[0].rows;
@@ -47,6 +57,7 @@ function groupEntriesByScelta() {
     'Decongelato': []
   };
 
+  // Group rows based on 'Scelta'
   for (let i = 0; i < rows.length; i++) {
     const scelta = rows[i].cells[3].textContent;
     groups[scelta].push(rows[i]);
@@ -68,11 +79,8 @@ function groupEntriesByScelta() {
     }
   }
 }
-const today = new Date();
-const day = String(today.getDate()).padStart(2, '0');
-const month = String(today.getMonth() + 1).padStart(2, '0');
-const year = today.getFullYear();
-const formattedDate = `${day}/${month}/${year}`;
+
+// Save data to localStorage
 function saveDataToLocalStorage() {
   const rows = document.querySelectorAll('#foodTable tbody tr');
   const items = Array.from(rows).map(row => {
@@ -86,26 +94,13 @@ function saveDataToLocalStorage() {
   });
   localStorage.setItem('foodItems', JSON.stringify(items));
 }
-addItemToTable();
-saveDataToLocalStorage();
+
+// Load data from localStorage
 function loadDataFromLocalStorage() {
   const savedItems = JSON.parse(localStorage.getItem('foodItems'));
   if (savedItems) {
     savedItems.forEach(item => {
-      addItemToTable(item);
+      addRowToTable(item.data, item.prodotto, item.quantita, item.scelta, item.scadenza);
     });
   }
 }
-
-function addItemToTable(item = null) {
-  const table = document.getElementById('foodTable').getElementsByTagName('tbody')[0];
-  const newRow = table.insertRow();
-  newRow.innerHTML = `
-    <td>${item ? item.data : ''}</td>
-    <td>${item ? item.prodotto : ''}</td>
-    <td>${item ? item.quantita : ''}</td>
-    <td>${item ? item.scelta : ''}</td>
-    <td>${item ? item.scadenza : ''}</td>
-  `;
-}
-window.onload = loadDataFromLocalStorage;
