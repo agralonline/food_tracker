@@ -7,6 +7,17 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
+  <div class="controls">
+  <button id="btnAlimenti">Alimenti</button>
+  <div id="tempControl">
+    <button id="btnTemperature">Temperature</button>
+    <div id="sliderContainer" style="display: none;">
+      <label for="roomSlider">Scegli stanza:</label>
+      <input type="range" id="roomSlider" min="0" max="1" step="1">
+      <span id="roomLabel">Sala</span>
+    </div>
+  </div>
+</div>
 <body>
   <div id="app">
     <h2>Tracciatore Alimenti</h2>
