@@ -7,6 +7,7 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
   const scadenza = document.getElementById('scadenza').value;
   const scelta = document.getElementById('scelta').value;
 
+  // Add new row to the table
   const table = document.getElementById('foodTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
   newRow.innerHTML = `
@@ -17,18 +18,10 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
     <td>${scadenza}</td>
   `;
 
-  document.getElementById('dataContainer').style.display = 'block';
-  document.getElementById('formContainer').style.display = 'none';
-});
+  // Reset form fields
+  document.getElementById('foodForm').reset();
 
-document.getElementById('exportPdfBtn').addEventListener('click', function () {
-  const element = document.getElementById('dataContainer');
-  const options = {
-    margin: 10,
-    filename: 'food_tracker_data.pdf',
-    image: { type: 'jpeg', quality: 1.0 },
-    html2canvas: { scale: 4 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf(element, options);
+  // Keep the form visible for adding more items
+  document.getElementById('formContainer').style.display = 'block';
+  document.getElementById('dataContainer').style.display = 'block';
 });
