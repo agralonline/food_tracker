@@ -73,34 +73,4 @@ function groupEntriesByScelta() {
       groupHeader.innerHTML = `<td colspan="5"><strong>${group}</strong></td>`;
       table.getElementsByTagName('tbody')[0].appendChild(groupHeader);
 
-      groups[group].forEach(row => {
-        table.getElementsByTagName('tbody')[0].appendChild(row);
-      });
-    }
-  }
-}
-
-// Save data to localStorage
-function saveDataToLocalStorage() {
-  const rows = document.querySelectorAll('#foodTable tbody tr');
-  const items = Array.from(rows).map(row => {
-    return {
-      data: row.cells[0].textContent,
-      prodotto: row.cells[1].textContent,
-      quantita: row.cells[2].textContent,
-      scelta: row.cells[3].textContent,
-      scadenza: row.cells[4].textContent
-    };
-  });
-  localStorage.setItem('foodItems', JSON.stringify(items));
-}
-
-// Load data from localStorage
-function loadDataFromLocalStorage() {
-  const savedItems = JSON.parse(localStorage.getItem('foodItems'));
-  if (savedItems) {
-    savedItems.forEach(item => {
-      addRowToTable(item.data, item.prodotto, item.quantita, item.scelta, item.scadenza);
-    });
-  }
-}
+      g
