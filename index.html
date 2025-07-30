@@ -1,69 +1,124 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tracciatore Alimenti</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tracciatore Alimenti - Login</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px; background: #f5f7fa;
+    color: #333;
+  }
+  #loginForm, #app {
+    max-width: 500px; margin: auto; padding: 20px;
+    background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+  }
+  #app { display: none; }
+  label { display: block; margin-top: 15px; font-weight: bold; }
+  input, select {
+    width: 100%; padding: 8px; margin-top: 5px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 20px; padding: 10px 15px;
+    background: #007bff; color: white; border: none;
+    border-radius: 4px; cursor: pointer;
+    font-size: 16px;
+  }
+  button:hover { background: #0056b3; }
+  table {
+    width: 100%; border-collapse: collapse; margin-top: 20px;
+  }
+  th, td {
+    padding: 10px; border: 1px solid #ddd; text-align: left;
+  }
+  th {
+    background: #007bff; color: white; cursor: pointer;
+  }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .action-btn {
+    margin-right: 5px;
+    padding: 5px 10px;
+    background: #28a745; color: white; border: none; border-radius: 3px;
+    cursor: pointer;
+  }
+  .action-btn.delete {
+    background: #dc3545;
+  }
+  #logoutBtn {
+    float: right;
+    background: #dc3545;
+    margin-bottom: 20px;
+  }
+</style>
 </head>
 <body>
-  <div id="app">
-    <h2>Tracciatore Alimenti</h2>
 
-    <div class="controls">
-      <button id="btnAlimenti" class="active">Alimenti</button>
-      <button id="btnTemperature">Temperature</button>
+<div id="loginForm">
+  <h2>Login</h2>
+  <label for="username">Username</label>
+  <input id="username" type="text" autocomplete="username" />
+  <label for="password">Password</label>
+  <input id="password" type="password" autocomplete="current-password" />
+  <button id="loginBtn">Accedi</button>
+  <p id="loginError" style="color:red; display:none; margin-top:10px;">Credenziali errate.</p>
+</div>
 
-      <div id="sliderContainer" style="display:none; align-items:center; margin-left:20px;">
-        <label for="roomSlider" style="margin-right:8px;">Scegli stanza:</label>
-        <input type="range" id="roomSlider" min="0" max="1" step="1" />
-        <span id="roomLabel" style="margin-left:8px;">Sala</span>
-      </div>
-    </div>
+<div id="app">
+  <button id="logoutBtn">Logout</button>
+  <h2>Tracciatore Alimenti</h2>
 
-    <div id="formContainer">
-      <form id="foodForm">
-        <label for="data">Data:</label>
-        <input type="date" id="data" name="data" required /><br />
+  <form id="foodForm">
+    <label for="data">Data:</label>
+    <input type="date" id="data" required />
 
-        <label for="prodotto">Nome Prodotto:</label>
-        <input type="text" id="prodotto" name="prodotto" required /><br />
+    <label for="prodotto">Nome Prodotto:</label>
+    <input type="text" id="prodotto" required />
 
-        <label for="quantita">Quantità (opzionale):</label>
-        <input type="number" id="quantita" name="quantita" /><br />
-        <label for="scelta">Processo:</label>
-        <select id="scelta" name="scelta" required>
-          <option value="Abbattuto +3° C">Abbattuto +3° C</option>
-          <option value="Abbattuto -18° C">Abbattuto -18° C</option>
-          <option value="Decongelato">Decongelato</option>
-        </select><br />
+    <label for="quantita">Quantità:</label>
+    <input type="number" id="quantita" min="1" required />
 
-        <label for="scadenza">Scadenza:</label>
-        <input type="date" id="scadenza" name="scadenza" required /><br />
+    <label for="processo">Processo:</label>
+    <select id="processo" required>
+      <option value="">-- Seleziona --</option>
+      <option value="Abbattuto +3° C">Abbattuto +3° C</option>
+      <option value="Abbattuto -18° C">Abbattuto -18° C</option>
+      <option value="Decongelato">Decongelato</option>
+    </select>
 
-        <button type="submit">Aggiungi</button>
-      </form>
-    </div>
+    <label for="scadenza">Scadenza:</label>
+    <input type="date" id="scadenza" required />
 
-    <div id="dataContainer" style="display:none;">
-      <h3>Elenco Alimenti</h3>
-      <table id="foodTable">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Prodotto</th>
-            <th>Quantità</th>
-            <th>Processo</th>
-            <th>Scadenza</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button id="exportPdfBtn">Esporta in PDF</button>
-    </div>
-  </div>
+    <button type="submit">Aggiungi</button>
+  </form>
 
-  <script src="app.js"></script>
+  <table id="foodTable" aria-label="Elenco Alimenti">
+    <thead>
+      <tr>
+        <th data-sort="data">Data</th>
+        <th data-sort="prodotto">Prodotto</th>
+        <th data-sort="quantita">Quantità</th>
+        <th data-sort="processo">Processo</th>
+        <th data-sort="scadenza">Scadenza</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button id="exportPdfBtn">Esporta in PDF</button>
+</div>
+
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- html2pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script src="app.js"></script>
+
 </body>
 </html>
