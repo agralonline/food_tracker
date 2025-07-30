@@ -1,322 +1,57 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tracciatore Alimenti</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="192.png" />
-  <link rel="apple-touch-icon" href="192.png" />
-  <meta name="theme-color" content="#4CAF50" />
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to right, #f8f9fa, #e9ecef);
-    }
-
-    h2 {
-      text-align: center;
-      color: #2e7d32;
-      margin-bottom: 20px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0;
-      font-size: 16px;
-      box-sizing: border-box;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background-color: #388e3c;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    th {
-      background: #f0f0f0;
-    }
-
-    .expired {
-      background-color: #ffcccc;
-    }
-
-    .expiring-soon {
-      background-color: #fff3cd;
-    }
-
-    #loginBox {
-      max-width: 350px;
-      margin: 80px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .logout-btn-wrapper {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-    }
-
-    .logout-btn {
-      background: #f44336;
-      color: white;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 80px auto 40px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    }
-
-    td button {
-      margin: 0 2px;
-      padding: 4px 8px;
-      font-size: 14px;
-    }
-
-    @media (max-width: 600px) {
-      th, td {
-        font-size: 12px;
-        padding: 4px;
-      }
-
-      input, button {
-        font-size: 14px;
-      }
-
-      .container {
-        margin: 60px 10px 20px;
-        padding: 15px;
-      }
-
-      td button {
-        font-size: 12px;
-        padding: 3px 6px;
-      }
-    }
-  </style>
-  <script type="module">
-    const $ = id => document.getElementById(id);
-
-    function formatDate(dateStr) {
-      const [y, m, d] = dateStr.split("-");
-      return `${d}/${m}/${y}`;
-    }
-
-    let db, itemsRef, namesRef;
-
-    function setupFirebase() {
-      import("https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js").then(({ initializeApp }) => {
-        import("https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js").then(({ getFirestore, collection, addDoc, deleteDoc, doc, setDoc, onSnapshot }) => {
-
-          const firebaseConfig = {
-            apiKey: "AIzaSyAVmsiSzszfgCEk5qqnX57pGigoQtUafAU",
-            authDomain: "food-tracker-fca47.firebaseapp.com",
-            projectId: "food-tracker-fca47",
-            storageBucket: "food-tracker-fca47.appspot.com",
-            messagingSenderId: "769456892190",
-            appId: "1:769456892190:web:9c2a2e7d676f1f2d85010f"
-          };
-
-          const app = initializeApp(firebaseConfig);
-          db = getFirestore(app);
-          itemsRef = collection(db, "foodItems");
-          namesRef = collection(db, "productNames");
-
-          if (localStorage.getItem("loggedIn") === "yes") showApp();
-          else {
-            $("loginBox").style.display = "block";
-            $("mainApp").style.display = "none";
-            $("logoutWrapper").style.display = "none";
-          }
-
-          window.addItem = async function () {
-            const name = $("itemName").value.trim();
-            const prepared = $("datePrepared").value;
-            const expiry = $("expiryDate").value;
-            if (!name || !prepared || !expiry) return alert("Completa tutti i campi");
-            await addDoc(itemsRef, { name, prepared, expiry });
-            await setDoc(doc(namesRef, name), { name });
-            $("itemName").value = "";
-            $("datePrepared").value = new Date().toISOString().split("T")[0];
-            $("expiryDate").value = "";
-          };
-
-          window.editItem = function (id, item) {
-            const newName = prompt("Modifica nome prodotto", item.name);
-            const newPrepared = prompt("Modifica data di preparazione", item.prepared);
-            const newExpiry = prompt("Modifica data di scadenza", item.expiry);
-            if (newName && newPrepared && newExpiry) {
-              setDoc(doc(itemsRef, id), { name: newName, prepared: newPrepared, expiry: newExpiry });
-              setDoc(doc(namesRef, newName), { name: newName });
-            }
-          };
-
-          window.deleteItem = function (id) {
-            if (confirm("Vuoi eliminare questo prodotto?")) deleteDoc(doc(itemsRef, id));
-          };
-
-          function renderItems(snapshot) {
-            const table = $("itemTable");
-            table.innerHTML = "";
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const expired = [], soon = [], fresh = [];
-
-            snapshot.forEach(docSnap => {
-              const item = docSnap.data();
-              const id = docSnap.id;
-              const expiryDate = new Date(item.expiry);
-              const daysLeft = Math.floor((expiryDate - today) / (1000 * 60 * 60 * 24));
-
-              let status = "", rowClass = "";
-              if (expiryDate < today) {
-                status = "Scaduto";
-                rowClass = "expired";
-                expired.push({ id, item, rowClass, status });
-              } else if (daysLeft <= 1) {
-                status = "In Scadenza";
-                rowClass = "expiring-soon";
-                soon.push({ id, item, rowClass, status });
-                if (!localStorage.getItem(`notified_${id}`)) {
-                  alert(`🔔 Il prodotto "${item.name}" scade tra 24 ore o meno!`);
-                  localStorage.setItem(`notified_${id}`, "true");
-                }
-              } else {
-                status = `${daysLeft} giorni rimasti`;
-                fresh.push({ id, item, rowClass, status });
-              }
-            });
-
-            [...expired, ...soon, ...fresh].forEach(({ id, item, rowClass, status }) => {
-              const row = document.createElement("tr");
-              row.className = rowClass;
-              row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${formatDate(item.prepared)}</td>
-                <td>${formatDate(item.expiry)}</td>
-                <td>${status}</td>
-                <td>
-                  <button onclick='editItem("${id}", ${JSON.stringify(item)})'>✏️</button>
-                  <button onclick='deleteItem("${id}")'>🗑️</button>
-                </td>`;
-              table.appendChild(row);
-            });
-          }
-
-          function renderNames(snapshot) {
-            const list = $("productList");
-            list.innerHTML = "";
-            snapshot.forEach(doc => {
-              const opt = document.createElement("option");
-              opt.value = doc.data().name;
-              list.appendChild(opt);
-            });
-          }
-
-          function showApp() {
-            $("loginBox").style.display = "none";
-            $("mainApp").style.display = "block";
-            $("logoutWrapper").style.display = "block";
-            onSnapshot(itemsRef, renderItems);
-            onSnapshot(namesRef, renderNames);
-            $("datePrepared").value = new Date().toISOString().split("T")[0];
-          }
-
-          window.checkLogin = function () {
-            const u = $("username").value.trim();
-            const p = $("password").value.trim();
-            if (u === "Admin" && p === "Miraggio@46") {
-              localStorage.setItem("loggedIn", "yes");
-              showApp();
-            } else {
-              alert("Credenziali non valide");
-            }
-          };
-
-        });
-      });
-    }
-
-    window.onload = setupFirebase;
-  </script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-  <div class="logout-btn-wrapper" id="logoutWrapper" style="display:none;">
-    <button class="logout-btn" onclick="localStorage.clear(); location.reload();">Esci</button>
-  </div>
+  <div id="app">
+    <h2>Tracciatore Alimenti</h2>
+    <div id="buttons">
+      <button id="btnPreparazione">Preparazione</button>
+      <button id="btnSottovuoto">Sottovuoto</button>
+      <button id="btnAbbattuto">Abbattuto -18°</button>
+      <button id="btnDecongelato">Decongelato</button>
+    </div>
 
-  <div id="loginBox">
-    <h2>🔐 Accesso Amministratore</h2>
-    <input id="username" placeholder="Username" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="checkLogin()">Accedi</button>
-  </div>
+    <div id="formContainer" style="display: none;">
+      <form id="foodForm">
+        <label for="data">Data:</label>
+        <input type="date" id="data" name="data" required><br><br>
 
-  <div id="mainApp" style="display:none;">
-    <div class="container">
-      <h2>🍲 Tracciatore Alimenti</h2>
-      <form onsubmit="event.preventDefault(); addItem();">
-        <input list="productList" id="itemName" placeholder="Nome prodotto" />
-        <datalist id="productList"></datalist>
-        <input id="datePrepared" type="date" />
-        <input id="expiryDate" type="date" />
-        <button type="submit">Aggiungi Prodotto</button>
+        <label for="prodotto">Prodotto:</label>
+        <input type="text" id="prodotto" name="prodotto" required><br><br>
+
+        <label for="quantita">Quantità (opzionale):</label>
+        <input type="number" id="quantita" name="quantita"><br><br>
+
+        <label for="scadenza">Scadenza:</label>
+        <input type="date" id="scadenza" name="scadenza" required><br><br>
+
+        <button type="submit">Aggiungi</button>
       </form>
-      <table>
+    </div>
+
+    <div id="dataContainer" style="display: none;">
+      <h3>Elenco Alimenti</h3>
+      <table id="dataTable">
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>Preparato</th>
+            <th>Data</th>
+            <th>Prodotto</th>
+            <th>Quantità</th>
             <th>Scadenza</th>
-            <th>Stato</th>
-            <th>Azioni</th>
           </tr>
         </thead>
-        <tbody id="itemTable"></tbody>
+        <tbody></tbody>
       </table>
+      <button id="exportPdfBtn">Esporta in PDF</button>
     </div>
   </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
