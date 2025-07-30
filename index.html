@@ -1,47 +1,56 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tracciatore Alimenti</title>
+  <title>Food Tracker</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div id="app">
-    <h2>Tracciatore Alimenti</h2>
+    <h2>Food Tracker</h2>
 
     <div id="formContainer">
       <form id="foodForm">
-        <label for="data">Data:</label>
+        <label for="data">Date:</label>
         <input type="date" id="data" name="data" required><br><br>
 
-        <label for="prodotto">Nome Prodotto:</label>
+        <label for="prodotto">Product Name:</label>
         <input type="text" id="prodotto" name="prodotto" required><br><br>
 
-        <label for="quantita">Quantità:</label>
-        <input type="number" id="quantita" name="quantita" required><br><br>
+        <label for="quantita">Quantity (optional):</label>
+        <input type="number" id="quantita" name="quantita"><br><br>
 
-        <label for="scelta">Scelta:</label>
+        <label for="scelta">Choice:</label>
         <select id="scelta" name="scelta" required>
           <option value="Sottovuoto">Sottovuoto</option>
           <option value="Abbattuto -18°">Abbattuto -18°</option>
           <option value="Decongelato">Decongelato</option>
         </select><br><br>
 
-        <label for="scadenza">Scadenza:</label>
+        <label for="scadenza">Expiry Date:</label>
         <input type="date" id="scadenza" name="scadenza" required><br><br>
 
-        <button type="submit">Aggiungi</button>
+        <button type="submit">Add</button>
       </form>
     </div>
 
     <div id="dataContainer" style="display: none;">
-      <h3>Elenco Alimenti</h3>
-      <div id="tablesContainer">
-        <!-- Tables for each category will be dynamically inserted here -->
-      </div>
-      <button id="exportPdfBtn">Esporta in PDF</button>
+      <h3>Food List</h3>
+      <table id="foodTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Choice</th>
+            <th>Expiry Date</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="exportPdfBtn">Export to PDF</button>
     </div>
   </div>
 
