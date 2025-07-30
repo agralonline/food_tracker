@@ -10,31 +10,24 @@
 <body>
   <div id="app">
     <h2>Tracciatore Alimenti</h2>
-    <div id="buttons">
-      <button id="btnPreparazione">Preparazione</button>
-      <button id="btnSottovuoto">Sottovuoto</button>
-      <button id="btnAbbattuto">Abbattuto -18°</button>
-      <button id="btnDecongelato">Decongelato</button>
-    </div>
 
-    <div id="formContainer" style="display: none;">
+    <div id="formContainer">
       <form id="foodForm">
-        <label for="category">Scelta:</label>
-        <select id="category" name="category" required>
-          <option value="Preparazione">Preparazione</option>
+        <label for="data">Data:</label>
+        <input type="date" id="data" name="data" required><br><br>
+
+        <label for="prodotto">Nome Prodotto:</label>
+        <input type="text" id="prodotto" name="prodotto" required><br><br>
+
+        <label for="quantita">Quantità:</label>
+        <input type="number" id="quantita" name="quantita" required><br><br>
+
+        <label for="scelta">Scelta:</label>
+        <select id="scelta" name="scelta" required>
           <option value="Sottovuoto">Sottovuoto</option>
           <option value="Abbattuto -18°">Abbattuto -18°</option>
           <option value="Decongelato">Decongelato</option>
         </select><br><br>
-
-        <label for="data">Data:</label>
-        <input type="date" id="data" name="data" required><br><br>
-
-        <label for="prodotto">Prodotto:</label>
-        <input type="text" id="prodotto" name="prodotto" required><br><br>
-
-        <label for="quantita">Quantità (opzionale):</label>
-        <input type="number" id="quantita" name="quantita"><br><br>
 
         <label for="scadenza">Scadenza:</label>
         <input type="date" id="scadenza" name="scadenza" required><br><br>
