@@ -7,50 +7,19 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
   const scadenza = document.getElementById('scadenza').value;
   const scelta = document.getElementById('scelta').value;
 
-  const table = getTableByScelta(scelta);
+  const table = document.getElementById('foodTable').getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
   newRow.innerHTML = `
     <td>${data}</td>
     <td>${prodotto}</td>
     <td>${quantita}</td>
+    <td>${scelta}</td>
     <td>${scadenza}</td>
   `;
 
   document.getElementById('dataContainer').style.display = 'block';
   document.getElementById('formContainer').style.display = 'none';
 });
-
-function getTableByScelta(scelta) {
-  let table = document.getElementById(`${scelta.toLowerCase()}Table`);
-  if (!table) {
-    table = createTableForScelta(scelta);
-  }
-  return table;
-}
-
-function createTableForScelta(scelta) {
-  const container = document.getElementById('tablesContainer');
-  const tableContainer = document.createElement('div');
-  tableContainer.id = `${scelta.toLowerCase()}Container`;
-
-  const table = document.createElement('table');
-  table.id = `${scelta.toLowerCase()}Table`;
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Prodotto</th>
-        <th>Quantità</th>
-        <th>Scadenza</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
-  tableContainer.appendChild(table);
-  container.appendChild(tableContainer);
-
-  return table;
-}
 
 document.getElementById('exportPdfBtn').addEventListener('click', function () {
   const element = document.getElementById('dataContainer');
