@@ -13,17 +13,15 @@
 
     <div class="controls">
       <button id="btnAlimenti" class="active">Alimenti</button>
-      <div id="tempControl">
-        <button id="btnTemperature">Temperature</button>
-        <div id="sliderContainer" style="display: none;">
-          <label for="roomSlider">Scegli stanza:</label>
-          <input type="range" id="roomSlider" min="0" max="1" step="1" />
-          <span id="roomLabel">Sala</span>
-        </div>
+      <button id="btnTemperature">Temperature</button>
+
+      <div id="sliderContainer" style="display:none; align-items:center; margin-left:20px;">
+        <label for="roomSlider" style="margin-right:8px;">Scegli stanza:</label>
+        <input type="range" id="roomSlider" min="0" max="1" step="1" />
+        <span id="roomLabel" style="margin-left:8px;">Sala</span>
       </div>
     </div>
 
-    <!-- Food form -->
     <div id="formContainer">
       <form id="foodForm">
         <label for="data">Data:</label>
@@ -49,8 +47,7 @@
       </form>
     </div>
 
-    <!-- Data table -->
-    <div id="dataContainer" style="display: none;">
+    <div id="dataContainer" style="display:none;">
       <h3>Elenco Alimenti</h3>
       <table id="foodTable">
         <thead>
