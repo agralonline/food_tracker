@@ -1,25 +1,3 @@
-let currentCategory = '';
-
-document.querySelectorAll('button[id^="btn"]').forEach(button => {
-  button.addEventListener('click', function() {
-    currentCategory = this.textContent;
-    showForm();
-    highlightActiveButton();
-  });
-});
-
-function showForm() {
-  document.getElementById('formContainer').style.display = 'block';
-  document.getElementById('foodForm').reset();
-  document.getElementById('category').value = currentCategory;
-}
-
-function highlightActiveButton() {
-  document.querySelectorAll('button[id^="btn"]').forEach(button => {
-    button.style.backgroundColor = button.textContent === currentCategory ? '#45a049' : '#4CAF50';
-  });
-}
-
 document.getElementById('foodForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
@@ -27,9 +5,9 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
   const prodotto = document.getElementById('prodotto').value;
   const quantita = document.getElementById('quantita').value || 'N/A';
   const scadenza = document.getElementById('scadenza').value;
-  const category = document.getElementById('category').value;
+  const scelta = document.getElementById('scelta').value;
 
-  const table = getTableByCategory(category);
+  const table = getTableByScelta(scelta);
   const newRow = table.insertRow();
   newRow.innerHTML = `
     <td>${data}</td>
@@ -42,21 +20,21 @@ document.getElementById('foodForm').addEventListener('submit', function(e) {
   document.getElementById('formContainer').style.display = 'none';
 });
 
-function getTableByCategory(category) {
-  let table = document.getElementById(`${category.toLowerCase()}Table`);
+function getTableByScelta(scelta) {
+  let table = document.getElementById(`${scelta.toLowerCase()}Table`);
   if (!table) {
-    table = createTableForCategory(category);
+    table = createTableForScelta(scelta);
   }
   return table;
 }
 
-function createTableForCategory(category) {
+function createTableForScelta(scelta) {
   const container = document.getElementById('tablesContainer');
   const tableContainer = document.createElement('div');
-  tableContainer.id = `${category.toLowerCase()}Container`;
+  tableContainer.id = `${scelta.toLowerCase()}Container`;
 
   const table = document.createElement('table');
-  table.id = `${category.toLowerCase()}Table`;
+  table.id = `${scelta.toLowerCase()}Table`;
   table.innerHTML = `
     <thead>
       <tr>
