@@ -89,7 +89,6 @@ function loadDataFromLocalStorage() {
 
   // Show the data container
   if (savedData.length > 0) {
-    document.getElementById('dataContainer').style.display = 'block';
-
+    document.getElementById('dataContainer
 ::contentReference[oaicite:16]{index=16}
  
