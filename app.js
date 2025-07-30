@@ -1,39 +1,44 @@
+let currentCategory = '';
+
 document.getElementById('btnPreparazione').addEventListener('click', function() {
-  showForm('Preparazione');
+  currentCategory = 'Preparazione';
+  showForm();
 });
 
 document.getElementById('btnSottovuoto').addEventListener('click', function() {
-  showForm('Sottovuoto');
+  currentCategory = 'Sottovuoto';
+  showForm();
 });
 
 document.getElementById('btnAbbattuto').addEventListener('click', function() {
-  showForm('Abbattuto -18°');
+  currentCategory = 'Abbattuto -18°';
+  showForm();
 });
 
 document.getElementById('btnDecongelato').addEventListener('click', function() {
-  showForm('Decongelato');
+  currentCategory = 'Decongelato';
+  showForm();
 });
 
-function showForm(type) {
+function showForm() {
   document.getElementById('formContainer').style.display = 'block';
   document.getElementById('foodForm').reset();
-  // Optionally, you can set a hidden input to store the type
-  // document.getElementById('type').value = type;
 }
 
 document.getElementById('foodForm').addEventListener('submit', function(e) {
   e.preventDefault();
+
   const data = document.getElementById('data').value;
   const prodotto = document.getElementById('prodotto').value;
-  const quantita = document.getElementById('quantita').value;
+  const quantita = document.getElementById('quantita').value || 'N/A';
   const scadenza = document.getElementById('scadenza').value;
 
-  const table = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+  const table = document.getElementById(`${currentCategory.toLowerCase()}Table`).getElementsByTagName('tbody')[0];
   const newRow = table.insertRow();
   newRow.innerHTML = `
     <td>${data}</td>
     <td>${prodotto}</td>
-    <td>${quantita || 'N/A'}</td>
+    <td>${quantita}</td>
     <td>${scadenza}</td>
   `;
 
