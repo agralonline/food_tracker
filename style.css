@@ -129,4 +129,28 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function formatDateISO(dateStr) {
-    if (!
+    if (!dateStr) return '';
+    // Convert dd/mm/yyyy or other formats back to yyyy-mm-dd if possible
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+      }
+    }
+    return dateStr;
+  }
+
+  // Basic escape to prevent HTML injection in product name display
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, (m) => {
+      switch (m) {
+        case '&': return '&amp;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '"': return '&quot;';
+        case "'": return '&#039;';
+        default: return m;
+      }
+    });
+  }
+});
