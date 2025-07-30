@@ -19,6 +19,14 @@
 
     <div id="formContainer" style="display: none;">
       <form id="foodForm">
+        <label for="category">Scelta:</label>
+        <select id="category" name="category" required>
+          <option value="Preparazione">Preparazione</option>
+          <option value="Sottovuoto">Sottovuoto</option>
+          <option value="Abbattuto -18°">Abbattuto -18°</option>
+          <option value="Decongelato">Decongelato</option>
+        </select><br><br>
+
         <label for="data">Data:</label>
         <input type="date" id="data" name="data" required><br><br>
 
@@ -37,66 +45,9 @@
 
     <div id="dataContainer" style="display: none;">
       <h3>Elenco Alimenti</h3>
-      <div id="preparazioneContainer">
-        <h4>Preparazione</h4>
-        <table id="preparazioneTable">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Prodotto</th>
-              <th>Quantità</th>
-              <th>Scadenza</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <div id="tablesContainer">
+        <!-- Tables for each category will be dynamically inserted here -->
       </div>
-
-      <div id="sottovuotoContainer">
-        <h4>Sottovuoto</h4>
-        <table id="sottovuotoTable">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Prodotto</th>
-              <th>Quantità</th>
-              <th>Scadenza</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div id="abbattutoContainer">
-        <h4>Abbattuto -18°</h4>
-        <table id="abbattutoTable">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Prodotto</th>
-              <th>Quantità</th>
-              <th>Scadenza</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div id="decongelatoContainer">
-        <h4>Decongelato</h4>
-        <table id="decongelatoTable">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Prodotto</th>
-              <th>Quantità</th>
-              <th>Scadenza</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
       <button id="exportPdfBtn">Esporta in PDF</button>
     </div>
   </div>
