@@ -25,23 +25,23 @@
     <div id="formContainer">
       <form id="foodForm">
         <label for="data">Data:</label>
-        <input type="date" id="data" name="data" required />
+        <input type="date" id="data" name="data" required /><br />
 
         <label for="prodotto">Nome Prodotto:</label>
-        <input type="text" id="prodotto" name="prodotto" required />
+        <input type="text" id="prodotto" name="prodotto" required /><br />
 
         <label for="quantita">Quantità (opzionale):</label>
-        <input type="number" id="quantita" name="quantita" min="0" />
+        <input type="number" id="quantita" name="quantita" /><br />
 
         <label for="scelta">Scelta:</label>
         <select id="scelta" name="scelta" required>
-          <option value="Sottovuoto">Sottovuoto</option>
-          <option value="Abbattuto -18°">Abbattuto -18°</option>
+          <option value="Abbattuto +3° C">Abbattuto +3° C</option>
+          <option value="Abbattuto -18° C">Abbattuto -18° C</option>
           <option value="Decongelato">Decongelato</option>
-        </select>
+        </select><br />
 
         <label for="scadenza">Scadenza:</label>
-        <input type="date" id="scadenza" name="scadenza" required />
+        <input type="date" id="scadenza" name="scadenza" required /><br />
 
         <button type="submit">Aggiungi</button>
       </form>
