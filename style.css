@@ -8,10 +8,74 @@ h2 {
   color: #333;
 }
 
-#buttons button {
-  margin: 5px;
-  padding: 10px 20px;
+#formContainer {
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+label {
+  margin-bottom: 5px;
+}
+
+input, select, button {
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
   background-color: #4CAF50;
-  color
-::contentReference[oaicite:16]{index=16}
- 
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+#tablesContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+table {
+  width: 48%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+#exportPdfBtn {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#exportPdfBtn:hover {
+  background-color: #0056b3;
+}
