@@ -1,6 +1,7 @@
 document.getElementById('foodForm').addEventListener('submit', function(e) {
-  e.preventDefault();
+  e.preventDefault(); // Prevent form submission
 
+  // Retrieve form values
   const data = document.getElementById('data').value;
   const prodotto = document.getElementById('prodotto').value;
   const quantita = document.getElementById('quantita').value || 'N/A';
