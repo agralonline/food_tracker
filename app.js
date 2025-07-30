@@ -80,9 +80,16 @@ function groupEntriesByScelta() {
 // Load saved items from localStorage
 function loadDataFromLocalStorage() {
   const savedData = JSON.parse(localStorage.getItem('foodItems')) || [];
-  const prodottoSelect = document.getElementById('prodotto');
   const table = document.getElementById('foodTable').getElementsByTagName('tbody')[0];
 
-  // Populate the product dropdown with unique product names
-::contentReference[oaicite:17]{index=17}
+  // Display saved items in the table
+  savedData.forEach(item => {
+    addRowToTable(item.data, item.prodotto, item.quantita, item.scelta, item.scadenza);
+  });
+
+  // Show the data container
+  if (savedData.length > 0) {
+    document.getElementById('dataContainer').style.display = 'block';
+
+::contentReference[oaicite:16]{index=16}
  
