@@ -116,4 +116,50 @@ function saveDataToLocalStorage() {
     });
   });
 
-  localStorage.setItem('foodItems
+  localStorage.setItem('foodItems', JSON.stringify(dataToSave));
+}
+
+// Load data from localStorage into table
+function loadDataFromLocalStorage() {
+  const savedData = localStorage.getItem('foodItems');
+  if (!savedData) return;
+
+  const items = JSON.parse(savedData);
+  items.forEach(item => {
+    addRowToTable(item.data, item.prodotto, item.quantita, item.scelta, item.scadenza);
+  });
+}
+
+// Show or hide data container depending on data presence
+function toggleDataContainer() {
+  const tableBody = document.getElementById('foodTable').querySelector('tbody');
+  const container = document.getElementById('dataContainer');
+  container.style.display = tableBody.children.length ? 'block' : 'none';
+}
+
+// Format date YYYY-MM-DD to DD/MM/YYYY for display
+function formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+// Format date DD/MM/YYYY back to YYYY-MM-DD for storage
+function formatDateForStorage(dateStr) {
+  const parts = dateStr.split('/');
+  if (parts.length !== 3) return dateStr;
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
+// Escape HTML to prevent injection
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
