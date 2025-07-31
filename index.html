@@ -3,103 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Controllo Alimenti & Temperature</title>
+  <title>Food & Temperature Tracker</title>
+  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <header>
     <button id="alimentiBtn">Alimenti</button>
     <button id="temperatureBtn">Temperature</button>
-  </header>
-
-  <!-- Alimenti Section -->
-  <section id="alimentiSection">
-    <form id="foodForm">
-      <input type="date" id="data" required />
-      <input type="text" id="prodotto" placeholder="Prodotto" required />
-      <input type="text" id="quantita" placeholder="Quantità" required />
-      <input type="text" id="processo" placeholder="Processo" required />
-      <input type="date" id="scadenza" required />
-      <button type="submit">Aggiungi</button>
-    </form>
-
-    <select id="sortSelect">
-      <option value="data">Data</option>
-      <option value="scadenza">Scadenza</option>
-      <option value="prodotto">Prodotto</option>
-      <option value="processo">Processo</option>
-    </select>
-
-    <table id="foodTable">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Prodotto</th>
-          <th>Quantità</th>
-          <th>Processo</th>
-          <th>Scadenza</th>
-          <th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
-
-  <!-- Temperature Section -->
-  <section id="temperatureSection" class="hidden">
-    <select id="areaSelect">
-      <option value="">-- Seleziona Area --</option>
+    <select id="areaSelect" class="hidden">
+      <option value="">Seleziona Area</option>
       <option value="sala">Sala</option>
       <option value="cucina">Cucina</option>
     </select>
+    <button onclick="exportAlimentiPDF()">📄 Esporta Alimenti</button>
+    <button onclick="exportTemperaturePDF('sala')">📄 Sala PDF</button>
+    <button onclick="exportTemperaturePDF('cucina')">📄 Cucina PDF</button>
+    <button id="themeToggle">🌓</button>
+  </header>
 
-    <!-- Sala Table -->
-    <div id="salaTable" class="hidden">
-      <h2>REGISTRO CONTROLLO DELLE TEMPERATURE - Sala</h2>
-      <p>Mese: <span id="meseSala"></span> / Anno: <span id="annoSala"></span></p>
-      <table>
+  <main>
+    <!-- Alimenti Section -->
+    <section id="alimentiSection">
+      <form id="foodForm">
+        <input type="date" id="data" required placeholder="Data" />
+        <input type="text" id="prodotto" placeholder="Prodotto" required />
+        <input type="text" id="quantita" placeholder="Quantità" required />
+        <input type="text" id="processo" placeholder="Processo" required />
+        <input type="date" id="scadenza" required placeholder="Scadenza" />
+        <button type="submit">Aggiungi</button>
+      </form>
+
+      <select id="sortSelect">
+        <option value="data">Data</option>
+        <option value="scadenza">Scadenza</option>
+        <option value="prodotto">Prodotto</option>
+        <option value="processo">Processo</option>
+      </select>
+
+      <table id="foodTable">
         <thead>
           <tr>
-            <th>Giorno</th>
-            <th>Ora</th>
-            <th>Operatore</th>
-            <th>Banco</th>
-            <th>Bindi</th>
-            <th>Vetrinetta</th>
-            <th>Levissima</th>
-            <th>Cantina Vini</th>
+            <th>Data</th>
+            <th>Prodotto</th>
+            <th>Quantità</th>
+            <th>Processo</th>
+            <th>Scadenza</th>
+            <th>Elimina</th>
           </tr>
         </thead>
-        <tbody id="salaTableBody"></tbody>
+        <tbody></tbody>
       </table>
-    </div>
+    </section>
 
-    <!-- Cucina Table -->
-    <div id="cucinaTable" class="hidden">
-      <h2>REGISTRO CONTROLLO DELLE TEMPERATURE - Cucina</h2>
-      <p>Mese: <span id="meseCucina"></span> / Anno: <span id="annoCucina"></span></p>
-      <table>
-        <thead>
-          <tr>
-            <th>Giorno</th>
-            <th>Ora</th>
-            <th>Operatore</th>
-            <th>Cucina</th>
-            <th>Cucina 2</th>
-            <th>Pizzeria</th>
-            <th>Tavolo R1</th>
-            <th>Tavolo R2</th>
-            <th>Cella +</th>
-            <th>Cella -</th>
-          </tr>
-        </thead>
-        <tbody id="cucinaTableBody"></tbody>
-      </table>
-    </div>
-  </section>
+    <!-- Temperature Section -->
+    <section id="temperatureSection" class="hidden">
+      <div id="salaTable" class="hidden">
+        <h3>REGISTRO SALA - <span id="meseSala"></span> / <span id="annoSala"></span></h3>
+        <table><tbody id="salaTableBody"></tbody></table>
+      </div>
+      <div id="cucinaTable" class="hidden">
+        <h3>REGISTRO CUCINA - <span id="meseCucina"></span> / <span id="annoCucina"></span></h3>
+        <table><tbody id="cucinaTableBody"></tbody></table>
+      </div>
+    </section>
+  </main>
 
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
