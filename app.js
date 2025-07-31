@@ -1,203 +1,454 @@
-// Firebase config - REPLACE with your own config below
-const firebaseConfig = {
-  apiKey: "AIzaSyAVmsiSzszfgCEk5qqnX57pGigoQtUafAU",
-  authDomain: "food-tracker-fca47.firebaseapp.com",
-  projectId: "food-tracker-fca47",
-  storageBucket: "food-tracker-fca47.firebasestorage.app",
-  messagingSenderId: "769456892190",
-  appId: "1:769456892190:web:9c2a2e7d676f1f2d85010f",
-};
+// =============== FIREBASE SETUP (add your config here) ===============
+// Replace with your Firebase config, initialize Firebase app and Firestore
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Example:
+// const firebaseConfig = { ... };
+// firebase.initializeApp(firebaseConfig);
+// const db = firebase.firestore();
 
-// DOM elements
+let db; // Placeholder for Firestore instance
+
+// ====== GLOBAL VARIABLES =======
+const alimentiForm = document.getElementById('alimentiForm');
+const alimentiTableBody = document.getElementById('alimentiTableBody');
+
+const btnAlimenti = document.getElementById('btnAlimenti');
+const btnTemperature = document.getElementById('btnTemperature');
+const logoutBtn = document.getElementById('logoutBtn');
+
 const alimentiSection = document.getElementById('alimentiSection');
 const temperatureSection = document.getElementById('temperatureSection');
 
-const alimentiBtn = document.getElementById('alimentiBtn');
-const temperatureBtn = document.getElementById('temperatureBtn');
-const logoutBtn = document.getElementById('logoutBtn');
+const areaSelect = document.getElementById('areaSelect');
+const salaTable = document.getElementById('salaTable');
+const cucinaTable = document.getElementById('cucinaTable');
 
-const foodForm = document.getElementById('foodForm');
-const foodTableBody = document.querySelector('#foodTable tbody');
-const sortSelect = document.getElementById('sortSelect');
-const exportPdfBtn = document.getElementById('exportPdfBtn');
+const meseSala = document.getElementById('meseSala');
+const annoSala = document.getElementById('annoSala');
+const meseCucina = document.getElementById('meseCucina');
+const annoCucina = document.getElementById('annoCucina');
 
-let editingId = null;
+const salaTableBody = document.getElementById('salaTableBody');
+const cucinaTableBody = document.getElementById('cucinaTableBody');
 
-// Show Alimenti section
-alimentiBtn.addEventListener('click', () => {
-  alimentiSection.classList.remove('hidden');
-  temperatureSection.classList.add('hidden');
-});
+// Stato modifica alimento (null = add new)
+let editingAlimentoId = null;
 
-// Show Temperature section
-temperatureBtn.addEventListener('click', () => {
-  temperatureSection.classList.remove('hidden');
-  alimentiSection.classList.add('hidden');
-});
+// --------- UTILITIES -----------
 
-// Logout button dummy (you can implement auth)
-logoutBtn.addEventListener('click', () => {
-  alert('Logout non implementato. Da integrare con Firebase Auth o altro.');
-});
+function formatDateIt(date) {
+  // date = Date object or date string ISO
+  let d = new Date(date);
+  let day = d.getDate().toString().padStart(2, '0');
+  let month = (d.getMonth() + 1).toString().padStart(2, '0');
+  let year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
 
-// Save or update alimento
-foodForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
+function parseDateFromInput(dateInputValue) {
+  // dateInputValue format: yyyy-mm-dd
+  if (!dateInputValue) return null;
+  const parts = dateInputValue.split('-');
+  if (parts.length !== 3) return null;
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
 
-  // Gather form data
-  const data = foodForm.data.value;
-  const prodotto = foodForm.prodotto.value.trim();
-  const quantita = foodForm.quantita.value.trim();
-  const processo = foodForm.processo.value;
-  const scadenza = foodForm.scadenza.value;
-  const sottovuotoRadio = foodForm.querySelector('input[name="sottovuoto"]:checked');
-  const sottovuoto = sottovuotoRadio ? sottovuotoRadio.value : null;
+function getTodayISODate() {
+  let d = new Date();
+  return d.toISOString().split('T')[0];
+}
 
-  if (!data || !prodotto || !quantita || !processo || !scadenza || !sottovuoto) {
-    alert("Compila tutti i campi obbligatori.");
-    return;
-  }
+// --------- RENDER ALIMENTI -----------
 
-  const alimentoData = {
-    data,
-    prodotto,
-    quantita,
-    processo,
-    scadenza,
-    sottovuoto,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-  };
+async function renderAlimenti() {
+  alimentiTableBody.innerHTML = '';
 
-  try {
-    if (editingId) {
-      // Update existing
-      await db.collection('alimenti').doc(editingId).update(alimentoData);
-      editingId = null;
-    } else {
-      // Add new
-      await db.collection('alimenti').add(alimentoData);
-    }
+  // Fetch alimenti from Firestore here, ordered by dataScadenza ascending
+  // Sample dummy data (replace with Firestore fetching)
+  // let alimenti = await fetchAlimentiFromFirestore();
 
-    foodForm.reset();
-    loadAlimenti();
-  } catch (err) {
-    console.error("Errore salvataggio alimento:", err);
-  }
-});
+  // Dummy placeholder array for example:
+  // alimenti = [
+  //   {id:'1', nome:'Pane', dataPreparazione:'2025-07-30', dataScadenza:'2025-08-02', processo:'Abbattuto -18° C', quantita:'10', sottovuoto:'Si'},
+  // ];
 
-// Load alimenti from Firestore
-async function loadAlimenti() {
-  const snapshot = await db.collection('alimenti').get();
+  // TODO: replace with actual Firestore fetch code
+  let alimenti = await fetchAlimentiFromFirestore();
 
-  let alimenti = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-  // Sort based on sortSelect
-  const sortBy = sortSelect.value;
-  alimenti.sort((a, b) => {
-    if (sortBy === 'data' || sortBy === 'scadenza') {
-      return new Date(a[sortBy]) - new Date(b[sortBy]);
-    } else {
-      return a[sortBy].localeCompare(b[sortBy]);
-    }
-  });
-
-  // Render table
-  foodTableBody.innerHTML = '';
-
-  const today = new Date();
   alimenti.forEach(alimento => {
-    const scadenzaDate = new Date(alimento.scadenza);
-    let tr = document.createElement('tr');
+    const tr = document.createElement('tr');
 
-    // Mark expired or expiring soon
-    const diffMs = scadenzaDate - today;
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
+    // Highlight expired or soon expiring items (optional)
+    let now = new Date();
+    let scadenza = parseDateFromInput(alimento.dataScadenza);
+    let diffTime = scadenza - now;
+    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     if (diffDays < 0) {
-      tr.classList.add('expired');
+      tr.style.backgroundColor = '#f8d7da'; // red for expired
     } else if (diffDays <= 1) {
-      tr.classList.add('expiring');
+      tr.style.backgroundColor = '#fff3cd'; // yellow for expiring soon
     }
 
     tr.innerHTML = `
-      <td>${alimento.data}</td>
-      <td>${alimento.prodotto}</td>
-      <td>${alimento.quantita}</td>
+      <td>${alimento.nome}</td>
+      <td>${formatDateIt(alimento.dataPreparazione)}</td>
+      <td>${formatDateIt(alimento.dataScadenza)}</td>
       <td>${alimento.processo}</td>
+      <td>${alimento.quantita}</td>
       <td>${alimento.sottovuoto}</td>
-      <td>${alimento.scadenza}</td>
       <td>
-        <button class="action-btn edit-btn" data-id="${alimento.id}">Modifica</button>
-        <button class="action-btn delete-btn" data-id="${alimento.id}">Elimina</button>
+        <button class="edit-btn" data-id="${alimento.id}">Modifica</button>
+        <button class="delete-btn" data-id="${alimento.id}">Elimina</button>
       </td>
     `;
-    foodTableBody.appendChild(tr);
+
+    alimentiTableBody.appendChild(tr);
   });
 
-  // Attach edit/delete listeners
+  // Attach listeners for edit/delete buttons
   document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      startEditing(id);
-    });
+    btn.onclick = e => {
+      const id = e.target.getAttribute('data-id');
+      editAlimento(id);
+    };
   });
   document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.id;
-      if (confirm("Sei sicuro di voler eliminare questo alimento?")) {
-        await db.collection('alimenti').doc(id).delete();
-        loadAlimenti();
-      }
-    });
+    btn.onclick = e => {
+      const id = e.target.getAttribute('data-id');
+      deleteAlimento(id);
+    };
   });
 }
 
-// Start editing an alimento
-async function startEditing(id) {
-  const doc = await db.collection('alimenti').doc(id).get();
-  if (!doc.exists) return alert("Elemento non trovato!");
+// --------- FETCH ALIMENTI FROM FIRESTORE (dummy example) -----------
 
-  const alimento = doc.data();
-  editingId = id;
-
-  foodForm.data.value = alimento.data;
-  foodForm.prodotto.value = alimento.prodotto;
-  foodForm.quantita.value = alimento.quantita;
-  foodForm.processo.value = alimento.processo;
-  foodForm.scadenza.value = alimento.scadenza;
-  const radios = foodForm.querySelectorAll('input[name="sottovuoto"]');
-  radios.forEach(radio => {
-    radio.checked = (radio.value === alimento.sottovuoto);
-  });
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+async function fetchAlimentiFromFirestore() {
+  // TODO: Replace with Firestore fetching code
+  // Example: get collection "alimenti", orderBy dataScadenza ascending
+  // Return array of {id, nome, dataPreparazione, dataScadenza, processo, quantita, sottovuoto}
+  // For now return empty array to avoid errors:
+  return [];
 }
 
-// Sort select change reload
-sortSelect.addEventListener('change', loadAlimenti);
+// --------- ADD OR UPDATE ALIMENTO -----------
 
-// Export to PDF
-exportPdfBtn.addEventListener('click', () => {
-  const element = document.getElementById('foodTable');
-  const opt = {
-    margin: 0.5,
-    filename: 'alimenti.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+alimentiForm.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const nome = alimentiForm.nomeAlimento.value.trim();
+  const dataPreparazione = alimentiForm.dataPreparazione.value;
+  const dataScadenza = alimentiForm.dataScadenza.value;
+  const processo = alimentiForm.processoAlimento.value;
+  const quantita = alimentiForm.quantitaAlimento.value.trim();
+  const sottovuoto = alimentiForm.sottovuoto.value;
+
+  if (!nome || !dataPreparazione || !dataScadenza || !processo || !quantita || !sottovuoto) {
+    alert('Compila tutti i campi!');
+    return;
+  }
+
+  // Prepare alimento object
+  const alimentoData = {
+    nome,
+    dataPreparazione,
+    dataScadenza,
+    processo,
+    quantita,
+    sottovuoto,
   };
-  html2pdf().set(opt).from(element).save();
+
+  if (editingAlimentoId) {
+    // Update existing alimento in Firestore
+    await updateAlimentoInFirestore(editingAlimentoId, alimentoData);
+    editingAlimentoId = null;
+    alimentiForm.querySelector('button[type="submit"]').textContent = 'Aggiungi Alimento';
+  } else {
+    // Add new alimento to Firestore
+    await addAlimentoToFirestore(alimentoData);
+  }
+
+  alimentiForm.reset();
+  await renderAlimenti();
 });
 
-// Initial load
-loadAlimenti();
+// --------- FIRESTORE ADD/UPDATE/DELETE FUNCTIONS (to be implemented) -----------
 
-// Theme toggle
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.addEventListener('change', () => {
-  document.body.classList.toggle('dark', themeToggle.checked);
-});
+async function addAlimentoToFirestore(data) {
+  // TODO: implement Firestore add
+  console.log('Aggiungi alimento', data);
+}
+
+async function updateAlimentoInFirestore(id, data) {
+  // TODO: implement Firestore update
+  console.log('Aggiorna alimento', id, data);
+}
+
+async function deleteAlimentoFromFirestore(id) {
+  // TODO: implement Firestore delete
+  console.log('Elimina alimento', id);
+}
+
+// --------- EDIT AND DELETE HANDLERS -----------
+
+async function editAlimento(id) {
+  // Fetch alimento by id from Firestore and fill form
+  // TODO: Replace with Firestore fetching by id
+  const alimento = await getAlimentoById(id);
+  if (!alimento) return alert('Alimento non trovato');
+
+  alimentiForm.nomeAlimento.value = alimento.nome;
+  alimentiForm.dataPreparazione.value = alimento.dataPreparazione;
+  alimentiForm.dataScadenza.value = alimento.dataScadenza;
+  alimentiForm.processoAlimento.value = alimento.processo;
+  alimentiForm.quantitaAlimento.value = alimento.quantita;
+
+  // Set sottovuoto radio buttons
+  const radios = alimentiForm.querySelectorAll('input[name="sottovuoto"]');
+  radios.forEach(r => (r.checked = r.value === alimento.sottovuoto));
+
+  editingAlimentoId = id;
+  alimentiForm.querySelector('button[type="submit"]').textContent = 'Salva Modifica';
+}
+
+async function deleteAlimento(id) {
+  if (!confirm('Sei sicuro di voler eliminare questo alimento?')) return;
+  await deleteAlimentoFromFirestore(id);
+  await renderAlimenti();
+}
+
+// Dummy getAlimentoById (replace with Firestore)
+async function getAlimentoById(id) {
+  // TODO: implement Firestore fetch by id
+  return null;
+}
+
+// --------- SECTION SWITCHING -----------
+
+btnAlimenti.onclick = () => {
+  alimentiSection.classList.remove('hidden');
+  temperatureSection.classList.add('hidden');
+  areaSelect.value = '';
+  salaTable.classList.add('hidden');
+  cucinaTable.classList.add('hidden');
+};
+
+btnTemperature.onclick = () => {
+  alimentiSection.classList.add('hidden');
+  temperatureSection.classList.remove('hidden');
+  areaSelect.value = '';
+  salaTable.classList.add('hidden');
+  cucinaTable.classList.add('hidden');
+};
+
+// --------- TEMPERATURE TABLES GENERATION -----------
+
+function fillMonthYear() {
+  let now = new Date();
+  let monthNames = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  let monthStr = monthNames[now.getMonth()];
+  let yearStr = now.getFullYear();
+
+  meseSala.textContent = monthStr;
+  annoSala.textContent = yearStr;
+  meseCucina.textContent = monthStr;
+  annoCucina.textContent = yearStr;
+}
+
+function createTemperatureRow(giorno, fields, tableType) {
+  // giorno = number
+  // fields = array of field names to create inputs for (e.g. ["Banco","Bindi",...])
+  // tableType = "sala" or "cucina"
+
+  let tr = document.createElement('tr');
+
+  // Giorno cell
+  let tdGiorno = document.createElement('td');
+  tdGiorno.textContent = giorno;
+  tr.appendChild(tdGiorno);
+
+  // Ora cell - input type text
+  let tdOra = document.createElement('td');
+  let oraInput = document.createElement('input');
+  oraInput.type = 'text';
+  oraInput.placeholder = 'hh:mm';
+  oraInput.classList.add('ora-input');
+  oraInput.dataset.giorno = giorno;
+  oraInput.dataset.field = 'ora';
+  oraInput.dataset.area = tableType;
+  tdOra.appendChild(oraInput);
+  tr.appendChild(tdOra);
+
+  // Operatore cell - input text
+  let tdOperatore = document.createElement('td');
+  let operatoreInput = document.createElement('input');
+  operatoreInput.type = 'text';
+  operatoreInput.placeholder = 'Nome';
+  operatoreInput.classList.add('operatore-input');
+  operatoreInput.dataset.giorno = giorno;
+  operatoreInput.dataset.field = 'operatore';
+  operatoreInput.dataset.area = tableType;
+  tdOperatore.appendChild(operatoreInput);
+  tr.appendChild(tdOperatore);
+
+  // Other temperature fields
+  fields.forEach(field => {
+    let tdTemp = document.createElement('td');
+
+    // Wrapper for input + °C label
+    let wrapper = document.createElement('div');
+    wrapper.classList.add('temp-input-wrapper');
+
+    let inputTemp = document.createElement('input');
+    inputTemp.type = 'number';
+    inputTemp.min = -50;
+    inputTemp.max = 50;
+    inputTemp.step = 0.1;
+    inputTemp.placeholder = '';
+    inputTemp.dataset.giorno = giorno;
+    inputTemp.dataset.field = field.toLowerCase().replace(/\s+/g, '');
+    inputTemp.dataset.area = tableType;
+
+    // °C label
+    let degLabel = document.createElement('span');
+    degLabel.classList.add('deg-label');
+    degLabel.textContent = '°C';
+
+    wrapper.appendChild(inputTemp);
+    wrapper.appendChild(degLabel);
+    tdTemp.appendChild(wrapper);
+    tr.appendChild(tdTemp);
+  });
+
+  return tr;
+}
+
+function generateTemperatureTables() {
+  // Clear existing rows
+  salaTableBody.innerHTML = '';
+  cucinaTableBody.innerHTML = '';
+
+  // Sala fields:
+  const salaFields = ['Banco','Bindi','Vetrinetta','Levissima','CantinaVini'];
+  // Cucina fields:
+  const cucinaFields = ['Cucina','Cucina2','Pizzeria','TavoloR1','TavoloR2','CellaPlus','CellaMinus'];
+
+  for(let day=1; day<=31; day++) {
+    salaTableBody.appendChild(createTemperatureRow(day, salaFields, 'sala'));
+    cucinaTableBody.appendChild(createTemperatureRow(day, cucinaFields, 'cucina'));
+  }
+}
+
+// --------- AREA SELECT HANDLER -----------
+
+areaSelect.onchange = () => {
+  if (areaSelect.value === 'sala') {
+    salaTable.classList.remove('hidden');
+    cucinaTable.classList.add('hidden');
+  } else if (areaSelect.value === 'cucina') {
+    cucinaTable.classList.remove('hidden');
+    salaTable.classList.add('hidden');
+  } else {
+    salaTable.classList.add('hidden');
+    cucinaTable.classList.add('hidden');
+  }
+};
+
+// --------- SAVE AND LOAD TEMPERATURES -----------
+
+async function saveTemperatures() {
+  // Save all inputs to Firestore
+  // We save separately per area and per giorno (day)
+  // Document id format: `${area}-${giorno}-${month}-${year}`
+  let now = new Date();
+  let month = now.getMonth() + 1;
+  let year = now.getFullYear();
+
+  const areas = ['sala','cucina'];
+  for (let area of areas) {
+    let fields = (area === 'sala') ? ['banco','bindi','vetrinetta','levissima','cantinavini'] : ['cucina','cucina2','pizzeria','tavolor1','tavolor2','cellaplus','cellaminus'];
+
+    for (let day=1; day<=31; day++) {
+      let docId = `${area}-${day}-${month}-${year}`;
+      let dataToSave = {};
+
+      // Get inputs for day and area
+      // Inputs: ora, operatore + fields
+      let oraInput = document.querySelector(`input[data-area="${area}"][data-giorno="${day}"][data-field="ora"]`);
+      let operatoreInput = document.querySelector(`input[data-area="${area}"][data-giorno="${day}"][data-field="operatore"]`);
+
+      if (oraInput) dataToSave.ora = oraInput.value;
+      if (operatoreInput) dataToSave.operatore = operatoreInput.value;
+
+      fields.forEach(f => {
+        let inputEl = document.querySelector(`input[data-area="${area}"][data-giorno="${day}"][data-field="${f}"]`);
+        if (inputEl) {
+          dataToSave[f] = inputEl.value;
+        }
+      });
+
+      // Save to Firestore
+      await saveTemperatureToFirestore(docId, dataToSave);
+    }
+  }
+
+  alert('Temperature salvate con successo!');
+}
+
+async function loadTemperatures() {
+  // Load all temperature data from Firestore and fill inputs
+  let now = new Date();
+  let month = now.getMonth() + 1;
+  let year = now.getFullYear();
+
+  const areas = ['sala','cucina'];
+  for (let area of areas) {
+    let fields = (area === 'sala') ? ['banco','bindi','vetrinetta','levissima','cantinavini'] : ['cucina','cucina2','pizzeria','tavolor1','tavolor2','cellaplus','cellaminus'];
+
+    for (let day=1; day<=31; day++) {
+      let docId = `${area}-${day}-${month}-${year}`;
+      let data = await getTemperatureFromFirestore(docId);
+      if (!data) continue;
+
+      // Fill inputs
+      let oraInput = document.querySelector(`input[data-area="${area}"][data-giorno="${day}"][data-field="ora"]`);
+      let operatoreInput = document.querySelector(`input[data-area="${area}"][data-giorno="${day}"][data-field="operatore"]`);
+
+      if (oraInput && data.ora) oraInput.value = data.ora;
+      if (operatoreInput && data.operatore) operatoreInput.value = data.operatore;
+
+      fields.forEach(f => {
+        let inputEl = document.querySelector(`input[data-area="${area}"][data-giorno="${day}"][data-field="${f}"]`);
+        if (inputEl && data[f]) inputEl.value = data[f];
+      });
+    }
+  }
+}
+
+// --------- FIRESTORE SAVE/LOAD FOR TEMPERATURES -----------
+
+async function saveTemperatureToFirestore(docId, data) {
+  // TODO: Implement Firestore save for temperature document with docId
+  console.log('Save temperature', docId, data);
+}
+
+async function getTemperatureFromFirestore(docId) {
+  // TODO: Implement Firestore fetch for temperature document with docId
+  console.log('Get temperature', docId);
+  return null;
+}
+
+// --------- INITIALIZATION -----------
+
+function init() {
+  fillMonthYear();
+  generateTemperatureTables();
+  renderAlimenti();
+
+  // Default section
+  btnAlimenti.click();
+
+  // Load temperatures
+  loadTemperatures();
+}
+
+init();
