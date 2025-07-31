@@ -1,220 +1,203 @@
-// app.js
-
-// Firebase Config
+// Firebase config - REPLACE with your own config below
 const firebaseConfig = {
-  apiKey: "AIzaSyDwlEQZJmI3AEDJWCRtpKgBXBr1qD-4-Ow",
-  authDomain: "jobhourstracker.firebaseapp.com",
-  projectId: "jobhourstracker",
-  storageBucket: "jobhourstracker.appspot.com",
-  messagingSenderId: "401383939095",
-  appId: "1:401383939095:web:e5e5c056a12fc47fd99052"
+  apiKey: "AIzaSyAVmsiSzszfgCEk5qqnX57pGigoQtUafAU",
+  authDomain: "food-tracker-fca47.firebaseapp.com",
+  projectId: "food-tracker-fca47",
+  storageBucket: "food-tracker-fca47.firebasestorage.app",
+  messagingSenderId: "769456892190",
+  appId: "1:769456892190:web:9c2a2e7d676f1f2d85010f",
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// DOM Elements
-const alimentiSection = document.getElementById("alimentiSection");
-const temperatureSection = document.getElementById("temperatureSection");
-const alimentiBtn = document.getElementById("alimentiBtn");
-const temperatureBtn = document.getElementById("temperatureBtn");
-const areaSelect = document.getElementById("areaSelect");
-const salaTableDiv = document.getElementById("salaTable");
-const cucinaTableDiv = document.getElementById("cucinaTable");
-const exportTempPdfBtn = document.getElementById("exportTempPdfBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const themeToggle = document.getElementById("themeToggle");
-const quantitaInput = document.getElementById('quantita');
-if (!quantitaInput.value.trim()) {
-  alert('Inserisci la quantità');
-  return; // stop submission
-}
-const sottovuotoRadio = document.querySelector('input[name="sottovuoto"]:checked');
-if (!sottovuotoRadio) {
-  alert('Seleziona Sottovuoto (Sì o No)');
-  return;
-}
-const sottovuotoValue = sottovuotoRadio.value;
+// DOM elements
+const alimentiSection = document.getElementById('alimentiSection');
+const temperatureSection = document.getElementById('temperatureSection');
 
+const alimentiBtn = document.getElementById('alimentiBtn');
+const temperatureBtn = document.getElementById('temperatureBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 
-// Theme Toggle
-themeToggle.addEventListener("change", () => {
-  document.body.classList.toggle("dark-theme", themeToggle.checked);
-  localStorage.setItem("darkMode", themeToggle.checked);
-});
-if (localStorage.getItem("darkMode") === "true") {
-  themeToggle.checked = true;
-  document.body.classList.add("dark-theme");
-}
+const foodForm = document.getElementById('foodForm');
+const foodTableBody = document.querySelector('#foodTable tbody');
+const sortSelect = document.getElementById('sortSelect');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
 
-// Section Switch
-alimentiBtn.addEventListener("click", () => {
-  alimentiSection.classList.remove("hidden");
-  temperatureSection.classList.add("hidden");
+let editingId = null;
+
+// Show Alimenti section
+alimentiBtn.addEventListener('click', () => {
+  alimentiSection.classList.remove('hidden');
+  temperatureSection.classList.add('hidden');
 });
 
-temperatureBtn.addEventListener("click", () => {
-  alimentiSection.classList.add("hidden");
-  temperatureSection.classList.remove("hidden");
+// Show Temperature section
+temperatureBtn.addEventListener('click', () => {
+  temperatureSection.classList.remove('hidden');
+  alimentiSection.classList.add('hidden');
 });
 
-areaSelect.addEventListener("change", () => {
-  salaTableDiv.classList.add("hidden");
-  cucinaTableDiv.classList.add("hidden");
-  exportTempPdfBtn.classList.add("hidden");
+// Logout button dummy (you can implement auth)
+logoutBtn.addEventListener('click', () => {
+  alert('Logout non implementato. Da integrare con Firebase Auth o altro.');
+});
 
-  const value = areaSelect.value;
-  if (value === "sala") {
-    salaTableDiv.classList.remove("hidden");
-    exportTempPdfBtn.classList.remove("hidden");
-  } else if (value === "cucina") {
-    cucinaTableDiv.classList.remove("hidden");
-    exportTempPdfBtn.classList.remove("hidden");
+// Save or update alimento
+foodForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // Gather form data
+  const data = foodForm.data.value;
+  const prodotto = foodForm.prodotto.value.trim();
+  const quantita = foodForm.quantita.value.trim();
+  const processo = foodForm.processo.value;
+  const scadenza = foodForm.scadenza.value;
+  const sottovuotoRadio = foodForm.querySelector('input[name="sottovuoto"]:checked');
+  const sottovuoto = sottovuotoRadio ? sottovuotoRadio.value : null;
+
+  if (!data || !prodotto || !quantita || !processo || !scadenza || !sottovuoto) {
+    alert("Compila tutti i campi obbligatori.");
+    return;
+  }
+
+  const alimentoData = {
+    data,
+    prodotto,
+    quantita,
+    processo,
+    scadenza,
+    sottovuoto,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+
+  try {
+    if (editingId) {
+      // Update existing
+      await db.collection('alimenti').doc(editingId).update(alimentoData);
+      editingId = null;
+    } else {
+      // Add new
+      await db.collection('alimenti').add(alimentoData);
+    }
+
+    foodForm.reset();
+    loadAlimenti();
+  } catch (err) {
+    console.error("Errore salvataggio alimento:", err);
   }
 });
 
-logoutBtn.addEventListener("click", () => {
-  localStorage.clear();
-  location.reload();
-});
+// Load alimenti from Firestore
+async function loadAlimenti() {
+  const snapshot = await db.collection('alimenti').get();
 
-// Generate Sala or Cucina table
-function generateTemperatureTable(area) {
-  const columns = area === "sala"
-    ? ["Banco", "Bindi", "Vetrinetta", "Levissima", "Cantina Vini"]
-    : ["Cucina", "Cucina 2", "Pizzeria", "Tavolo R1", "Tavolo R2", "Cella +", "Cella -"]
+  let alimenti = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  const container = area === "sala" ? salaTableDiv : cucinaTableDiv;
-  container.innerHTML = "";
-
-  const table = document.createElement("table");
-  const thead = document.createElement("thead");
-  const tbody = document.createElement("tbody");
-
-  const headerRow = document.createElement("tr");
-  ["Giorno", "Ora", "Operatore", ...columns].forEach(col => {
-    const th = document.createElement("th");
-    th.textContent = col;
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-
-  for (let i = 1; i <= 31; i++) {
-    const row = document.createElement("tr");
-    const giorno = document.createElement("td");
-    giorno.textContent = i;
-    row.appendChild(giorno);
-
-    const ora = document.createElement("td");
-    ora.innerHTML = `<input type="time" data-field="ora">`;
-    row.appendChild(ora);
-
-    const operatore = document.createElement("td");
-    operatore.innerHTML = `<input type="text" data-field="operatore" list="operatoriList">`;
-    row.appendChild(operatore);
-
-    columns.forEach(col => {
-      const cell = document.createElement("td");
-      cell.innerHTML = `<input type="number" step="0.1" data-field="${col}">`;
-      row.appendChild(cell);
-    });
-
-    tbody.appendChild(row);
-  }
-
-  table.appendChild(thead);
-  table.appendChild(tbody);
-  container.appendChild(table);
-
-  // Load from Firebase
-  loadTemperatureData(area);
-
-  // Save on change
-  table.addEventListener("change", () => saveTemperatureData(area));
-}
-
-function saveTemperatureData(area) {
-  const table = (area === "sala" ? salaTableDiv : cucinaTableDiv).querySelector("table");
-  const rows = table.querySelectorAll("tbody tr");
-  const data = [];
-
-  rows.forEach(row => {
-    const cells = row.querySelectorAll("td");
-    const giorno = parseInt(cells[0].textContent);
-    const entry = { giorno };
-    cells.forEach(cell => {
-      const input = cell.querySelector("input");
-      if (input) {
-        const field = input.getAttribute("data-field");
-        entry[field] = input.value;
-      }
-    });
-    data.push(entry);
-  });
-
-  db.collection("temperature").doc(area).set({ data });
-}
-
-function loadTemperatureData(area) {
-  db.collection("temperature").doc(area).get().then(doc => {
-    if (doc.exists) {
-      const entries = doc.data().data;
-      const table = (area === "sala" ? salaTableDiv : cucinaTableDiv).querySelector("table");
-      const rows = table.querySelectorAll("tbody tr");
-      entries.forEach((entry, i) => {
-        const cells = rows[i].querySelectorAll("td");
-        cells.forEach(cell => {
-          const input = cell.querySelector("input");
-          if (input) {
-            const field = input.getAttribute("data-field");
-            if (entry[field]) input.value = entry[field];
-          }
-        });
-      });
+  // Sort based on sortSelect
+  const sortBy = sortSelect.value;
+  alimenti.sort((a, b) => {
+    if (sortBy === 'data' || sortBy === 'scadenza') {
+      return new Date(a[sortBy]) - new Date(b[sortBy]);
+    } else {
+      return a[sortBy].localeCompare(b[sortBy]);
     }
   });
-}
 
-// Export PDF
-function exportTableToPDF(selector, filename) {
-  const element = document.querySelector(selector);
-  html2pdf().from(element).set({
-    margin: 0.5,
-    filename: filename,
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
-  }).save();
-}
+  // Render table
+  foodTableBody.innerHTML = '';
 
-document.getElementById("exportPdfBtn").addEventListener("click", () => {
-  exportTableToPDF("#foodTable", "alimenti.pdf");
-});
+  const today = new Date();
+  alimenti.forEach(alimento => {
+    const scadenzaDate = new Date(alimento.scadenza);
+    let tr = document.createElement('tr');
 
-document.getElementById("exportTempPdfBtn").addEventListener("click", () => {
-  const area = areaSelect.value;
-  if (area === "sala") exportTableToPDF("#salaTable", "temperature_sala.pdf");
-  else if (area === "cucina") exportTableToPDF("#cucinaTable", "temperature_cucina.pdf");
-});
+    // Mark expired or expiring soon
+    const diffMs = scadenzaDate - today;
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-// Generate operator list from previous
-const datalist = document.createElement("datalist");
-datalist.id = "operatoriList";
-document.body.appendChild(datalist);
+    if (diffDays < 0) {
+      tr.classList.add('expired');
+    } else if (diffDays <= 1) {
+      tr.classList.add('expiring');
+    }
 
-db.collection("temperature").get().then(snapshot => {
-  const names = new Set();
-  snapshot.forEach(doc => {
-    doc.data().data.forEach(row => {
-      if (row.operatore) names.add(row.operatore);
+    tr.innerHTML = `
+      <td>${alimento.data}</td>
+      <td>${alimento.prodotto}</td>
+      <td>${alimento.quantita}</td>
+      <td>${alimento.processo}</td>
+      <td>${alimento.sottovuoto}</td>
+      <td>${alimento.scadenza}</td>
+      <td>
+        <button class="action-btn edit-btn" data-id="${alimento.id}">Modifica</button>
+        <button class="action-btn delete-btn" data-id="${alimento.id}">Elimina</button>
+      </td>
+    `;
+    foodTableBody.appendChild(tr);
+  });
+
+  // Attach edit/delete listeners
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      startEditing(id);
     });
   });
-  names.forEach(name => {
-    const option = document.createElement("option");
-    option.value = name;
-    datalist.appendChild(option);
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      if (confirm("Sei sicuro di voler eliminare questo alimento?")) {
+        await db.collection('alimenti').doc(id).delete();
+        loadAlimenti();
+      }
+    });
   });
+}
+
+// Start editing an alimento
+async function startEditing(id) {
+  const doc = await db.collection('alimenti').doc(id).get();
+  if (!doc.exists) return alert("Elemento non trovato!");
+
+  const alimento = doc.data();
+  editingId = id;
+
+  foodForm.data.value = alimento.data;
+  foodForm.prodotto.value = alimento.prodotto;
+  foodForm.quantita.value = alimento.quantita;
+  foodForm.processo.value = alimento.processo;
+  foodForm.scadenza.value = alimento.scadenza;
+  const radios = foodForm.querySelectorAll('input[name="sottovuoto"]');
+  radios.forEach(radio => {
+    radio.checked = (radio.value === alimento.sottovuoto);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Sort select change reload
+sortSelect.addEventListener('change', loadAlimenti);
+
+// Export to PDF
+exportPdfBtn.addEventListener('click', () => {
+  const element = document.getElementById('foodTable');
+  const opt = {
+    margin: 0.5,
+    filename: 'alimenti.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+  };
+  html2pdf().set(opt).from(element).save();
 });
 
-// Generate Sala/Cucina Tables initially
-generateTemperatureTable("sala");
-generateTemperatureTable("cucina");
+// Initial load
+loadAlimenti();
+
+// Theme toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('change', () => {
+  document.body.classList.toggle('dark', themeToggle.checked);
+});
