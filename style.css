@@ -1,232 +1,138 @@
-/* Reset & base */
+/* Reset and basics */
 * {
   box-sizing: border-box;
 }
 body {
-  margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #fefefe;
-  color: #222;
-  transition: background-color 0.3s, color 0.3s;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  color: #333;
+  margin: 0;
+  padding: 1rem;
+}
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+h1 {
+  margin: 0;
+  font-weight: 700;
+  color: #2c5282;
+}
+button {
+  background-color: #3182ce;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+button:hover {
+  background-color: #2b6cb0;
+}
+button:disabled {
+  background-color: #a0aec0;
+  cursor: default;
 }
 .hidden {
-  display: none !important;
+  display: none;
 }
-
-header {
-  background: linear-gradient(90deg, #4a90e2, #50e3c2);
-  color: white;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-header h1 {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-header button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.3rem 0.5rem;
-  border-radius: 5px;
-  transition: background-color 0.2s;
-}
-header button:hover {
-  background-color: rgba(255 255 255 / 0.2);
-}
-
-nav {
-  background-color: #eee;
-  display: flex;
-  gap: 1rem;
-  padding: 0.5rem;
-  justify-content: center;
-}
-nav button {
-  background: none;
-  border: 2px solid #4a90e2;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-}
-nav button.active,
-nav button:hover {
-  background: #4a90e2;
-  color: white;
-}
-
-main {
-  max-width: 900px;
-  margin: 1rem auto 2rem;
-  padding: 0 1rem;
-}
-
-form#alimentiForm {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-form#alimentiForm input,
-form#alimentiForm button {
-  font-size: 1rem;
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  flex: 1 1 150px;
-  max-width: 250px;
-}
-form#alimentiForm button {
-  background: #4a90e2;
-  color: white;
-  border: none;
-  max-width: 100px;
-  flex: none;
-  cursor: pointer;
-  font-weight: 700;
-  transition: background-color 0.3s;
-}
-form#alimentiForm button:hover {
-  background: #357ABD;
-}
-
-button#exportAlimentiBtn,
-button#exportSalaBtn,
-button#exportCucinaBtn {
-  margin-bottom: 1rem;
-  background: #50e3c2;
-  border: none;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  color: #004d40;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background-color 0.3s;
-}
-button#exportAlimentiBtn:hover,
-button#exportSalaBtn:hover,
-button#exportCucinaBtn:hover {
-  background: #38b294;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-table thead tr {
-  background: #4a90e2;
-  color: white;
-}
-table th,
-table td {
-  border: 1px solid #ccc;
-  padding: 0.4rem 0.6rem;
-  text-align: left;
-}
-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-table tbody tr.expired {
-  background-color: #f8d7da !important;
-  color: #721c24;
-}
-table tbody tr.expiring {
-  background-color: #fff3cd !important;
-  color: #856404;
-}
-table tbody tr.fresh {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-table td[contenteditable="true"] {
-  background-color: #fffde7;
-  cursor: text;
-}
-table td[contenteditable="true"]:focus {
-  outline: 2px solid #4a90e2;
-  background-color: #eef7ff;
-}
-
-.error {
-  color: red;
-  font-size: 0.9rem;
+#error, .error {
+  color: #e53e3e;
   margin-top: 0.5rem;
 }
 
-/* Temperature section */
-
-.temp-nav {
+/* Login form */
+#loginForm {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+#loginForm input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+}
+
+/* Item form */
+#itemForm {
+  display: flex;
+  gap: 0.75rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
-.temp-nav button {
-  border-radius: 25px;
-  border: 2px solid #50e3c2;
-  background: none;
-  color: #004d40;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-}
-.temp-nav button.active,
-.temp-nav button:hover {
-  background: #50e3c2;
-  color: white;
-}
-
-/* Modal login */
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 320px;
-  width: 100%;
-  box-shadow: 0 0 12px rgb(0 0 0 / 0.3);
-  text-align: center;
-}
-.modal-content input {
-  width: 100%;
-  padding: 0.6rem;
-  margin: 0.5rem 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+#itemForm select,
+#itemForm input[type="date"] {
+  flex: 1 1 150px;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 5px;
   font-size: 1rem;
 }
-.modal-content button {
-  background: #4a90e2;
-  color: white;
+#itemForm button {
+  flex: 0 0 auto;
+}
+
+/* Table */
+#itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+#itemsTable th,
+#itemsTable td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  vertical-align: middle;
+}
+#itemsTable th {
+  background-color: #ebf4ff;
+  color: #2c5282;
+}
+.action-btn {
+  margin-right: 0.5rem;
+  background-color: #3182ce;
   border: none;
-  padding: 0.6rem 1rem;
-  font-weight: 600;
-  border-radius: 6px;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  margin-top: 1rem;
-  width: 100%;
-  font-size: 1rem;
+}
+.action-btn:hover {
+  background-color: #2b6cb0;
+}
+
+/* Expiry highlighting */
+.expired {
+  background-color: #fed7d7; /* red-ish */
+  color: #742a2a;
+  font-weight: 600;
+}
+.expiring-soon {
+  background-color: #faf089; /* yellow */
+  color: #744210;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #itemForm {
+    flex-direction: column;
+  }
+  #itemForm select,
+  #itemForm input[type="date"],
+  #itemForm button {
+    flex: 1 1 100%;
+  }
 }
