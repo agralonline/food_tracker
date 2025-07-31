@@ -1,242 +1,232 @@
-/* Reset */
+/* Reset & base */
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 body {
-  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fefefe;
   color: #222;
-  padding: 20px;
-  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+.hidden {
+  display: none !important;
 }
 
 header {
+  background: linear-gradient(90deg, #4a90e2, #50e3c2);
+  color: white;
+  padding: 1rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
 }
-
 header h1 {
+  margin: 0;
   font-weight: 700;
-  font-size: 1.8rem;
-  color: #2a4365;
+  font-size: 1.5rem;
 }
-
-#logoutBtn {
-  background-color: #e53e3e;
+header button {
+  background: transparent;
   border: none;
   color: white;
-  padding: 8px 14px;
-  border-radius: 6px;
+  font-size: 1.25rem;
   cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
+  padding: 0.3rem 0.5rem;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+header button:hover {
+  background-color: rgba(255 255 255 / 0.2);
 }
 
-#logoutBtn:hover {
-  background-color: #c53030;
+nav {
+  background-color: #eee;
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem;
+  justify-content: center;
 }
-
-#foodSection, #temperatureSection {
-  background: white;
-  padding: 15px 20px;
-  border-radius: 10px;
-  box-shadow: 0 3px 15px rgb(170 190 200 / 0.4);
-  margin-bottom: 25px;
-}
-
-#foodSection h2, #temperatureSection h2 {
-  margin-bottom: 12px;
-  color: #2c5282;
-  border-bottom: 2px solid #bee3f8;
-  padding-bottom: 5px;
-}
-
-#foodForm {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px 18px;
-  margin-bottom: 20px;
-}
-
-#foodForm label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #4a5568;
-}
-
-#foodForm input, #foodForm select, #foodForm button {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1.5px solid #cbd5e0;
-  font-size: 0.9rem;
-  outline-offset: 2px;
-  transition: border-color 0.25s ease;
-}
-
-#foodForm input:focus, #foodForm select:focus {
-  border-color: #63b3ed;
-}
-
-#foodForm button {
-  grid-column: span 1;
-  background: linear-gradient(45deg, #3182ce, #63b3ed);
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  transition: background 0.3s ease;
-}
-
-#foodForm button:hover {
-  background: linear-gradient(45deg, #2c5282, #3182ce);
-}
-
-#sortSection {
-  margin-bottom: 15px;
-}
-
-#sortSection label {
-  margin-right: 8px;
-  font-weight: 600;
-  color: #4a5568;
-}
-
-#sortSelect {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1.5px solid #cbd5e0;
-  font-size: 0.9rem;
-  outline-offset: 2px;
-  transition: border-color 0.25s ease;
-}
-
-#sortSelect:focus {
-  border-color: #63b3ed;
-}
-
-#foodTable {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-#foodTable th, #foodTable td {
-  border: 1px solid #e2e8f0;
-  padding: 8px 10px;
-  text-align: left;
-  font-size: 0.9rem;
-}
-
-#foodTable th {
-  background-color: #ebf8ff;
-  color: #2b6cb0;
-  font-weight: 700;
-  user-select: none;
-}
-
-#foodTable tr.expired {
-  background-color: #fed7d7; /* red-ish */
-}
-
-#foodTable tr.expiring {
-  background-color: #fefcbf; /* yellow-ish */
-}
-
-#foodTable button {
+nav button {
   background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  padding: 2px 6px;
-  transition: color 0.2s ease;
-}
-
-#foodTable button:hover {
-  color: #2c5282;
-}
-
-/* Temperature Section */
-
-#temperatureAreaSelect {
-  margin-bottom: 15px;
-}
-
-#temperatureAreaSelect label {
-  margin-right: 10px;
+  border: 2px solid #4a90e2;
+  padding: 0.5rem 1rem;
   font-weight: 600;
-  color: #4a5568;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+nav button.active,
+nav button:hover {
+  background: #4a90e2;
+  color: white;
 }
 
-#salaTable, #cucinaTable {
+main {
+  max-width: 900px;
+  margin: 1rem auto 2rem;
+  padding: 0 1rem;
+}
+
+form#alimentiForm {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+form#alimentiForm input,
+form#alimentiForm button {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  flex: 1 1 150px;
+  max-width: 250px;
+}
+form#alimentiForm button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  max-width: 100px;
+  flex: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background-color 0.3s;
+}
+form#alimentiForm button:hover {
+  background: #357ABD;
+}
+
+button#exportAlimentiBtn,
+button#exportSalaBtn,
+button#exportCucinaBtn {
+  margin-bottom: 1rem;
+  background: #50e3c2;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  color: #004d40;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+button#exportAlimentiBtn:hover,
+button#exportSalaBtn:hover,
+button#exportCucinaBtn:hover {
+  background: #38b294;
+}
+
+table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 12px;
-  font-size: 0.85rem;
-  user-select: none;
+  font-size: 0.9rem;
+}
+table thead tr {
+  background: #4a90e2;
+  color: white;
+}
+table th,
+table td {
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+table tbody tr.expired {
+  background-color: #f8d7da !important;
+  color: #721c24;
+}
+table tbody tr.expiring {
+  background-color: #fff3cd !important;
+  color: #856404;
+}
+table tbody tr.fresh {
+  background-color: #d4edda;
+  color: #155724;
 }
 
-#salaTable th, #cucinaTable th, #salaTable td, #cucinaTable td {
-  border: 1px solid #cbd5e0;
-  padding: 6px 8px;
+table td[contenteditable="true"] {
+  background-color: #fffde7;
+  cursor: text;
+}
+table td[contenteditable="true"]:focus {
+  outline: 2px solid #4a90e2;
+  background-color: #eef7ff;
+}
+
+.error {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Temperature section */
+
+.temp-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.temp-nav button {
+  border-radius: 25px;
+  border: 2px solid #50e3c2;
+  background: none;
+  color: #004d40;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+.temp-nav button.active,
+.temp-nav button:hover {
+  background: #50e3c2;
+  color: white;
+}
+
+/* Modal login */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 0 12px rgb(0 0 0 / 0.3);
   text-align: center;
 }
-
-#salaTable th, #cucinaTable th {
-  background-color: #bee3f8;
-  color: #2b6cb0;
-  font-weight: 700;
+.modal-content input {
+  width: 100%;
+  padding: 0.6rem;
+  margin: 0.5rem 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
 }
-
-#salaTable td[contenteditable="true"], #cucinaTable td[contenteditable="true"] {
-  background-color: #edf2f7;
-  cursor: text;
-  min-width: 50px;
-  position: relative;
-}
-
-#salaTable td[contenteditable="true"]:focus, #cucinaTable td[contenteditable="true"]:focus {
-  outline: 2px solid #3182ce;
-  background-color: #ebf8ff;
-}
-
-/* Hide initially the cucina table */
-.hidden {
-  display: none;
-}
-
-button.exportBtn {
-  background: linear-gradient(45deg, #4299e1, #63b3ed);
+.modal-content button {
+  background: #4a90e2;
   color: white;
   border: none;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
   border-radius: 6px;
-  padding: 7px 14px;
-  font-weight: 700;
   cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.3s ease;
-}
-
-button.exportBtn:hover {
-  background: linear-gradient(45deg, #2b6cb0, #3182ce);
-}
-
-/* Responsive */
-
-@media (max-width: 600px) {
-  #foodForm {
-    grid-template-columns: 1fr;
-  }
-
-  #foodTable th, #foodTable td {
-    font-size: 0.8rem;
-  }
-
-  #salaTable, #cucinaTable {
-    font-size: 0.75rem;
-  }
+  margin-top: 1rem;
+  width: 100%;
+  font-size: 1rem;
 }
