@@ -3,101 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Food & Temperature Tracker</title>
-  
-  <!-- Firebase SDK -->
+  <title>Food Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-  <!-- jsPDF and AutoTable for PDF export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Food & Temperature Tracker</h1>
-    <button id="logoutBtn" class="hidden">Logout</button>
-    <button id="themeToggleBtn" title="Toggle Light/Dark Theme">🌗</button>
-  </header>
+  <div class="container">
+    <header>
+      <h1>Food Tracker</h1>
+      <button id="logoutBtn" class="hidden">Logout</button>
+    </header>
 
-  <nav>
-    <button id="showAlimentiBtn" class="active">Alimenti</button>
-    <button id="showTemperatureBtn">Temperature</button>
-  </nav>
+    <section id="loginSection">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+      <div id="loginError" class="error"></div>
+    </section>
 
-  <main>
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" class="modal">
-      <div class="modal-content">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username" />
-        <input type="password" id="password" placeholder="Password" />
-        <button id="loginBtn">Login</button>
-        <p id="loginError" class="error"></p>
-      </div>
-    </div>
-
-    <!-- ALIMENTI SECTION -->
-    <section id="alimentiSection">
-      <form id="alimentiForm">
-        <input type="text" id="nomeInput" placeholder="Nome Prodotto" required />
-        <input type="date" id="dataPreparazioneInput" required />
-        <input type="date" id="dataScadenzaInput" required />
-        <button type="submit">Aggiungi</button>
+    <section id="appSection" class="hidden">
+      <form id="itemForm">
+        <select id="productSelect" required>
+          <option value="" disabled selected>Seleziona prodotto</option>
+        </select>
+        <input type="date" id="datePrepared" required />
+        <input type="date" id="expiryDate" required />
+        <button type="submit" id="submitBtn">Aggiungi</button>
+        <button type="button" id="cancelEditBtn" class="hidden">Annulla</button>
       </form>
 
-      <button id="exportAlimentiBtn">Esporta PDF</button>
-
-      <table id="alimentiTable">
+      <table id="itemsTable">
         <thead>
           <tr>
-            <th data-sort="nome">Nome</th>
-            <th data-sort="dataPreparazione">Data Preparazione</th>
-            <th data-sort="dataScadenza">Data Scadenza</th>
+            <th>Prodotto</th>
+            <th>Data Preparazione</th>
+            <th>Data Scadenza</th>
             <th>Azioni</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </section>
-
-    <!-- TEMPERATURE SECTION -->
-    <section id="temperatureSection" class="hidden">
-      <nav class="temp-nav">
-        <button id="showSalaBtn" class="active">Sala</button>
-        <button id="showCucinaBtn">Cucina</button>
-      </nav>
-
-      <div id="salaContainer">
-        <h2>Registro Controllo delle Temperature - Sala</h2>
-        <button id="exportSalaBtn">Esporta PDF Sala</button>
-        <table id="salaTable">
-          <thead>
-            <tr>
-              <th>Giorno</th><th>Ora</th><th>Operatore</th><th>Banco</th><th>Bindi</th><th>Vetrinetta</th><th>Levissima</th><th>Cantina Vini</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div id="cucinaContainer" class="hidden">
-        <h2>Registro Controllo delle Temperature - Cucina</h2>
-        <button id="exportCucinaBtn">Esporta PDF Cucina</button>
-        <table id="cucinaTable">
-          <thead>
-            <tr>
-              <th>Giorno</th><th>Ora</th><th>Operatore</th><th>Cucina</th><th>Cucina 2</th><th>Pizzeria</th><th>Tavolo R1</th><th>Tavolo R2</th><th>Cella +</th><th>Cella -</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+  </div>
 
   <script src="app.js"></script>
 </body>
