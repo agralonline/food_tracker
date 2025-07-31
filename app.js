@@ -1,318 +1,208 @@
-// Firestore reference
-const tempCollection = db.collection('temperature_records');
+// app.js
 
-// Elements
-const meseSelect = document.getElementById('meseSelect');
-const annoInput = document.getElementById('annoInput');
-const showSalaBtn = document.getElementById('showSalaBtn');
-const showCucinaBtn = document.getElementById('showCucinaBtn');
-const exportPdfBtn = document.getElementById('exportTempPdfBtn');
-
-const salaTable = document.getElementById('salaTable');
-const cucinaTable = document.getElementById('cucinaTable');
-
-let currentTipo = 'sala'; // 'sala' or 'cucina'
-let currentMese = parseInt(meseSelect.value);
-let currentAnno = parseInt(annoInput.value);
-
-let unsubscribe = null; // Firestore listener unsubscribe fn
-let operatorSet = new Set(); // to hold unique operator names
-
-// Columns per tipo
-const columnsByTipo = {
-  sala: ['banco', 'bindi', 'vetrinetta', 'levissima', 'cantina_vini'],
-  cucina: ['cucina', 'cucina_2', 'pizzeria', 'tavolo_r1', 'tavolo_r2', 'cella_piu', 'cella_meno'],
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyDwlEQZJmI3AEDJWCRtpKgBXBr1qD-4-Ow",
+  authDomain: "jobhourstracker.firebaseapp.com",
+  projectId: "jobhourstracker",
+  storageBucket: "jobhourstracker.appspot.com",
+  messagingSenderId: "401383939095",
+  appId: "1:401383939095:web:e5e5c056a12fc47fd99052"
 };
 
-// Utility to get current time HH:mm
-function getCurrentTimeStr() {
-  const now = new Date();
-  return now.toTimeString().slice(0, 5);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// DOM Elements
+const alimentiSection = document.getElementById("alimentiSection");
+const temperatureSection = document.getElementById("temperatureSection");
+const alimentiBtn = document.getElementById("alimentiBtn");
+const temperatureBtn = document.getElementById("temperatureBtn");
+const areaSelect = document.getElementById("areaSelect");
+const salaTableDiv = document.getElementById("salaTable");
+const cucinaTableDiv = document.getElementById("cucinaTable");
+const exportTempPdfBtn = document.getElementById("exportTempPdfBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const themeToggle = document.getElementById("themeToggle");
+
+// Theme Toggle
+themeToggle.addEventListener("change", () => {
+  document.body.classList.toggle("dark-theme", themeToggle.checked);
+  localStorage.setItem("darkMode", themeToggle.checked);
+});
+if (localStorage.getItem("darkMode") === "true") {
+  themeToggle.checked = true;
+  document.body.classList.add("dark-theme");
 }
 
-// Create an editable cell with optional initial value and special input types
-function createEditableCell(value = '', isOperator = false, operators = []) {
-  if (isOperator) {
-    // Create a datalist dropdown + input for operator
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = value;
-    input.setAttribute('list', 'operatorList');
-    input.style.width = '120px';
+// Section Switch
+alimentiBtn.addEventListener("click", () => {
+  alimentiSection.classList.remove("hidden");
+  temperatureSection.classList.add("hidden");
+});
 
-    // Create datalist only once
-    if (!document.getElementById('operatorList')) {
-      const datalist = document.createElement('datalist');
-      datalist.id = 'operatorList';
-      document.body.appendChild(datalist);
-    }
-    const datalist = document.getElementById('operatorList');
-    datalist.innerHTML = ''; // reset options
-    operators.forEach(op => {
-      const option = document.createElement('option');
-      option.value = op;
-      datalist.appendChild(option);
+temperatureBtn.addEventListener("click", () => {
+  alimentiSection.classList.add("hidden");
+  temperatureSection.classList.remove("hidden");
+});
+
+areaSelect.addEventListener("change", () => {
+  salaTableDiv.classList.add("hidden");
+  cucinaTableDiv.classList.add("hidden");
+  exportTempPdfBtn.classList.add("hidden");
+
+  const value = areaSelect.value;
+  if (value === "sala") {
+    salaTableDiv.classList.remove("hidden");
+    exportTempPdfBtn.classList.remove("hidden");
+  } else if (value === "cucina") {
+    cucinaTableDiv.classList.remove("hidden");
+    exportTempPdfBtn.classList.remove("hidden");
+  }
+});
+
+logoutBtn.addEventListener("click", () => {
+  localStorage.clear();
+  location.reload();
+});
+
+// Generate Sala or Cucina table
+function generateTemperatureTable(area) {
+  const columns = area === "sala"
+    ? ["Banco", "Bindi", "Vetrinetta", "Levissima", "Cantina Vini"]
+    : ["Cucina", "Cucina 2", "Pizzeria", "Tavolo R1", "Tavolo R2", "Cella +", "Cella -"]
+
+  const container = area === "sala" ? salaTableDiv : cucinaTableDiv;
+  container.innerHTML = "";
+
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const tbody = document.createElement("tbody");
+
+  const headerRow = document.createElement("tr");
+  ["Giorno", "Ora", "Operatore", ...columns].forEach(col => {
+    const th = document.createElement("th");
+    th.textContent = col;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+
+  for (let i = 1; i <= 31; i++) {
+    const row = document.createElement("tr");
+    const giorno = document.createElement("td");
+    giorno.textContent = i;
+    row.appendChild(giorno);
+
+    const ora = document.createElement("td");
+    ora.innerHTML = `<input type="time" data-field="ora">`;
+    row.appendChild(ora);
+
+    const operatore = document.createElement("td");
+    operatore.innerHTML = `<input type="text" data-field="operatore" list="operatoriList">`;
+    row.appendChild(operatore);
+
+    columns.forEach(col => {
+      const cell = document.createElement("td");
+      cell.innerHTML = `<input type="number" step="0.1" data-field="${col}">`;
+      row.appendChild(cell);
     });
-    return input;
-  } else {
-    // For Ora (time), we can create a time input for better UX
-    // or contenteditable div if you want free text
-    // Let's use <input type="time"> for Ora for convenience
-    const input = document.createElement('input');
-    if (value.match(/^\d{2}:\d{2}$/)) {
-      input.type = 'time';
-      input.value = value;
-    } else {
-      // Otherwise, simple text input (editable)
-      input.type = 'text';
-      input.value = value;
-    }
-    input.style.width = '70px';
-    return input;
+
+    tbody.appendChild(row);
   }
+
+  table.appendChild(thead);
+  table.appendChild(tbody);
+  container.appendChild(table);
+
+  // Load from Firebase
+  loadTemperatureData(area);
+
+  // Save on change
+  table.addEventListener("change", () => saveTemperatureData(area));
 }
 
-// Render table rows for given tipo and dataMap (key: giorno, value: data object)
-function renderTable(tipo, dataMap) {
-  const table = tipo === 'sala' ? salaTable : cucinaTable;
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
+function saveTemperatureData(area) {
+  const table = (area === "sala" ? salaTableDiv : cucinaTableDiv).querySelector("table");
+  const rows = table.querySelectorAll("tbody tr");
+  const data = [];
 
-  // Prepare operator list from existing data
-  operatorSet.clear();
-  for (const dayData of Object.values(dataMap)) {
-    if (dayData.operatore) operatorSet.add(dayData.operatore);
-  }
-  const operatorList = Array.from(operatorSet);
-
-  // Columns for this tipo
-  const tempColumns = columnsByTipo[tipo];
-
-  for (let giorno = 1; giorno <= 31; giorno++) {
-    const data = dataMap[giorno] || {
-      giorno,
-      ora: getCurrentTimeStr(),
-      operatore: '',
-      temperature: {},
-    };
-
-    const tr = document.createElement('tr');
-
-    // Giorno (not editable)
-    const tdGiorno = document.createElement('td');
-    tdGiorno.textContent = giorno;
-    tr.appendChild(tdGiorno);
-
-    // Ora (time input)
-    const oraInput = createEditableCell(data.ora || getCurrentTimeStr());
-    tr.appendChild(oraInput.parentElement ? oraInput.parentElement : (() => { const td = document.createElement('td'); td.appendChild(oraInput); return td; })());
-    tr.appendChild(document.createElement('td')); // We'll fix below to ensure proper append
-
-    // Actually put oraInput inside a td
-    const tdOra = document.createElement('td');
-    tdOra.appendChild(oraInput);
-    tr.appendChild(tdOra);
-
-    // Operatore (input with datalist)
-    const operatorInput = createEditableCell(data.operatore || '', true, operatorList);
-    const tdOperatore = document.createElement('td');
-    tdOperatore.appendChild(operatorInput);
-    tr.appendChild(tdOperatore);
-
-    // Temperature columns
-    for (const col of tempColumns) {
-      const td = document.createElement('td');
-      const val = data.temperature ? (data.temperature[col] || '') : '';
-      const tempInput = document.createElement('input');
-      tempInput.type = 'text';
-      tempInput.value = val;
-      tempInput.style.width = '60px';
-      td.appendChild(tempInput);
-      tr.appendChild(td);
-    }
-
-    tbody.appendChild(tr);
-
-    // Save handler (debounced)
-    function debounce(func, delay) {
-      let timer;
-      return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => func.apply(this, args), delay);
-      };
-    }
-
-    const saveRow = debounce(() => {
-      // Collect row data
-      const ora = oraInput.value.trim();
-      const operatore = operatorInput.value.trim();
-      const temperature = {};
-      for (let i = 0; i < tempColumns.length; i++) {
-        const inputElem = tr.children[4 + i].querySelector('input');
-        temperature[tempColumns[i]] = inputElem.value.trim();
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const giorno = parseInt(cells[0].textContent);
+    const entry = { giorno };
+    cells.forEach(cell => {
+      const input = cell.querySelector("input");
+      if (input) {
+        const field = input.getAttribute("data-field");
+        entry[field] = input.value;
       }
-
-      // Save to Firestore
-      saveTemperatureRecord({
-        mese: currentMese,
-        anno: currentAnno,
-        tipo,
-        giorno,
-        ora,
-        operatore,
-        temperature,
-      });
-    }, 1000);
-
-    // Attach listeners to inputs to save on change
-    oraInput.addEventListener('input', saveRow);
-    operatorInput.addEventListener('input', saveRow);
-    for (let i = 0; i < tempColumns.length; i++) {
-      const inputElem = tr.children[4 + i].querySelector('input');
-      inputElem.addEventListener('input', saveRow);
-    }
-  }
-}
-
-// Save a temperature record (row) to Firestore
-async function saveTemperatureRecord(record) {
-  try {
-    // Compose doc ID as tipo-mese-anno-giorno for uniqueness
-    const docId = `${record.tipo}-${record.mese}-${record.anno}-${record.giorno}`;
-
-    // Save/overwrite
-    await tempCollection.doc(docId).set(record);
-    // Update operator set for dropdowns
-    operatorSet.add(record.operatore);
-  } catch (error) {
-    console.error('Error saving temperature record:', error);
-  }
-}
-
-// Load data from Firestore for current selection and tipo
-function loadData(tipo) {
-  if (unsubscribe) unsubscribe();
-
-  unsubscribe = tempCollection
-    .where('mese', '==', currentMese)
-    .where('anno', '==', currentAnno)
-    .where('tipo', '==', tipo)
-    .onSnapshot(snapshot => {
-      const dataMap = {};
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        dataMap[data.giorno] = data;
-      });
-      renderTable(tipo, dataMap);
     });
-}
-
-// Show Sala table, hide Cucina
-function showSala() {
-  currentTipo = 'sala';
-  salaTable.style.display = 'table';
-  cucinaTable.style.display = 'none';
-  loadData('sala');
-}
-
-// Show Cucina table, hide Sala
-function showCucina() {
-  currentTipo = 'cucina';
-  salaTable.style.display = 'none';
-  cucinaTable.style.display = 'table';
-  loadData('cucina');
-}
-
-// Export visible table to PDF using jsPDF and autoTable plugin
-function exportTableToPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('landscape');
-
-  const meseNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-
-  // Title
-  doc.setFontSize(16);
-  doc.text('REGISTRO CONTROLLO DELLE TEMPERATURE', 14, 15);
-
-  // Mese/Anno info
-  doc.setFontSize(12);
-  doc.text(`Mese: ${meseNames[currentMese - 1]}    Anno: ${currentAnno}`, 14, 23);
-
-  // Prepare headers and body
-  let headers, body = [];
-  if (currentTipo === 'sala') {
-    headers = ['Giorno', 'Ora', 'Operatore', 'Banco', 'Bindi', 'Vetrinetta', 'Levissima', 'Cantina Vini'];
-    const rows = salaTable.querySelectorAll('tbody tr');
-    rows.forEach(tr => {
-      const rowData = [];
-      tr.querySelectorAll('td, th').forEach(td => rowData.push(td.textContent || td.querySelector('input')?.value || ''));
-      // inputs might not have textContent, get value
-      const giorno = tr.children[0].textContent;
-      const ora = tr.children[1].querySelector('input').value || '';
-      const operatore = tr.children[2].querySelector('input').value || '';
-      const banco = tr.children[3].querySelector('input').value || '';
-      const bindi = tr.children[4].querySelector('input').value || '';
-      const vetrinetta = tr.children[5].querySelector('input').value || '';
-      const levissima = tr.children[6].querySelector('input').value || '';
-      const cantina = tr.children[7].querySelector('input').value || '';
-      body.push([giorno, ora, operatore, banco, bindi, vetrinetta, levissima, cantina]);
-    });
-  } else {
-    headers = ['Giorno', 'Ora', 'Operatore', 'Cucina', 'Cucina 2', 'Pizzeria', 'Tavolo R1', 'Tavolo R2', 'Cella +', 'Cella -'];
-    const rows = cucinaTable.querySelectorAll('tbody tr');
-    rows.forEach(tr => {
-      const giorno = tr.children[0].textContent;
-      const ora = tr.children[1].querySelector('input').value || '';
-      const operatore = tr.children[2].querySelector('input').value || '';
-      const cucina = tr.children[3].querySelector('input').value || '';
-      const cucina2 = tr.children[4].querySelector('input').value || '';
-      const pizzeria = tr.children[5].querySelector('input').value || '';
-      const tavoloR1 = tr.children[6].querySelector('input').value || '';
-      const tavoloR2 = tr.children[7].querySelector('input').value || '';
-      const cellaPiu = tr.children[8].querySelector('input').value || '';
-      const cellaMeno = tr.children[9].querySelector('input').value || '';
-      body.push([giorno, ora, operatore, cucina, cucina2, pizzeria, tavoloR1, tavoloR2, cellaPiu, cellaMeno]);
-    });
-  }
-
-  // Use autoTable plugin
-  doc.autoTable({
-    head: [headers],
-    body,
-    startY: 30,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [0, 123, 255] },
+    data.push(entry);
   });
 
-  doc.save(`Registro_Temperature_${currentTipo}_${meseNames[currentMese - 1]}_${currentAnno}.pdf`);
+  db.collection("temperature").doc(area).set({ data });
 }
 
-// Event listeners
+function loadTemperatureData(area) {
+  db.collection("temperature").doc(area).get().then(doc => {
+    if (doc.exists) {
+      const entries = doc.data().data;
+      const table = (area === "sala" ? salaTableDiv : cucinaTableDiv).querySelector("table");
+      const rows = table.querySelectorAll("tbody tr");
+      entries.forEach((entry, i) => {
+        const cells = rows[i].querySelectorAll("td");
+        cells.forEach(cell => {
+          const input = cell.querySelector("input");
+          if (input) {
+            const field = input.getAttribute("data-field");
+            if (entry[field]) input.value = entry[field];
+          }
+        });
+      });
+    }
+  });
+}
 
-showSalaBtn.addEventListener('click', () => {
-  showSala();
+// Export PDF
+function exportTableToPDF(selector, filename) {
+  const element = document.querySelector(selector);
+  html2pdf().from(element).set({
+    margin: 0.5,
+    filename: filename,
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+  }).save();
+}
+
+document.getElementById("exportPdfBtn").addEventListener("click", () => {
+  exportTableToPDF("#foodTable", "alimenti.pdf");
 });
 
-showCucinaBtn.addEventListener('click', () => {
-  showCucina();
+document.getElementById("exportTempPdfBtn").addEventListener("click", () => {
+  const area = areaSelect.value;
+  if (area === "sala") exportTableToPDF("#salaTable", "temperature_sala.pdf");
+  else if (area === "cucina") exportTableToPDF("#cucinaTable", "temperature_cucina.pdf");
 });
 
-meseSelect.addEventListener('change', () => {
-  currentMese = parseInt(meseSelect.value);
-  loadData(currentTipo);
+// Generate operator list from previous
+const datalist = document.createElement("datalist");
+datalist.id = "operatoriList";
+document.body.appendChild(datalist);
+
+db.collection("temperature").get().then(snapshot => {
+  const names = new Set();
+  snapshot.forEach(doc => {
+    doc.data().data.forEach(row => {
+      if (row.operatore) names.add(row.operatore);
+    });
+  });
+  names.forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    datalist.appendChild(option);
+  });
 });
 
-annoInput.addEventListener('change', () => {
-  currentAnno = parseInt(annoInput.value);
-  loadData(currentTipo);
-});
-
-exportPdfBtn.addEventListener('click', () => {
-  exportTableToPDF();
-});
-
-// Init on load
-window.addEventListener('load', () => {
-  showSala();
-});
+// Generate Sala/Cucina Tables initially
+generateTemperatureTable("sala");
+generateTemperatureTable("cucina");
