@@ -24,6 +24,12 @@ const cucinaTableDiv = document.getElementById("cucinaTable");
 const exportTempPdfBtn = document.getElementById("exportTempPdfBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const themeToggle = document.getElementById("themeToggle");
+const quantitaInput = document.getElementById('quantita');
+if (!quantitaInput.value.trim()) {
+  alert('Inserisci la quantità');
+  return; // stop submission
+}
+
 
 // Theme Toggle
 themeToggle.addEventListener("change", () => {
