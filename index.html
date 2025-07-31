@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Controllo Alimenti e Temperature</title>
+  <title>Controllo Alimenti & Temperature</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <header>
@@ -12,31 +14,22 @@
     <button id="temperatureBtn">Temperature</button>
   </header>
 
+  <!-- Alimenti Section -->
   <section id="alimentiSection">
     <form id="foodForm">
-      <input type="date" id="data" required placeholder="Data" />
-      <input type="text" id="prodotto" required placeholder="Prodotto" />
-      <input type="text" id="quantita" required placeholder="Quantità" />
-      <select id="processo" required>
-        <option value="">Processo</option>
-        <option>Abbattuto -18° C</option>
-        <option>Abbattuto +3° C</option>
-        <option>Decongelato</option>
-      </select>
-      <select id="sottovuoto" required>
-        <option value="">Sottovuoto</option>
-        <option>Sì</option>
-        <option>No</option>
-      </select>
-      <input type="date" id="scadenza" required placeholder="Scadenza" />
-      <button type="submit">Salva</button>
+      <input type="date" id="data" required />
+      <input type="text" id="prodotto" placeholder="Prodotto" required />
+      <input type="text" id="quantita" placeholder="Quantità" required />
+      <input type="text" id="processo" placeholder="Processo" required />
+      <input type="date" id="scadenza" required />
+      <button type="submit">Aggiungi</button>
     </form>
 
-    <label for="sortSelect">Ordina per:</label>
     <select id="sortSelect">
       <option value="data">Data</option>
-      <option value="prodotto">Nome</option>
       <option value="scadenza">Scadenza</option>
+      <option value="prodotto">Prodotto</option>
+      <option value="processo">Processo</option>
     </select>
 
     <table id="foodTable">
@@ -54,34 +47,52 @@
     </table>
   </section>
 
+  <!-- Temperature Section -->
   <section id="temperatureSection" class="hidden">
-    <label for="areaSelect">Seleziona Area:</label>
     <select id="areaSelect">
-      <option value="">-- Seleziona --</option>
+      <option value="">-- Seleziona Area --</option>
       <option value="sala">Sala</option>
       <option value="cucina">Cucina</option>
     </select>
 
+    <!-- Sala Table -->
     <div id="salaTable" class="hidden">
-      <h3>REGISTRO CONTROLLO DELLE TEMPERATURE - <span id="meseSala"></span> / <span id="annoSala"></span></h3>
+      <h2>REGISTRO CONTROLLO DELLE TEMPERATURE - Sala</h2>
+      <p>Mese: <span id="meseSala"></span> / Anno: <span id="annoSala"></span></p>
       <table>
         <thead>
           <tr>
-            <th>Giorno</th><th>Ora</th><th>Operatore</th>
-            <th>Banco</th><th>Bindi</th><th>Vetrinetta</th><th>Levissima</th><th>Cantina Vini</th>
+            <th>Giorno</th>
+            <th>Ora</th>
+            <th>Operatore</th>
+            <th>Banco</th>
+            <th>Bindi</th>
+            <th>Vetrinetta</th>
+            <th>Levissima</th>
+            <th>Cantina Vini</th>
           </tr>
         </thead>
         <tbody id="salaTableBody"></tbody>
       </table>
     </div>
 
+    <!-- Cucina Table -->
     <div id="cucinaTable" class="hidden">
-      <h3>REGISTRO CONTROLLO DELLE TEMPERATURE - <span id="meseCucina"></span> / <span id="annoCucina"></span></h3>
+      <h2>REGISTRO CONTROLLO DELLE TEMPERATURE - Cucina</h2>
+      <p>Mese: <span id="meseCucina"></span> / Anno: <span id="annoCucina"></span></p>
       <table>
         <thead>
           <tr>
-            <th>Giorno</th><th>Ora</th><th>Operatore</th>
-            <th>Cucina</th><th>Cucina 2</th><th>Pizzeria</th><th>Tavolo R1</th><th>Tavolo R2</th><th>Cella +</th><th>Cella -</th>
+            <th>Giorno</th>
+            <th>Ora</th>
+            <th>Operatore</th>
+            <th>Cucina</th>
+            <th>Cucina 2</th>
+            <th>Pizzeria</th>
+            <th>Tavolo R1</th>
+            <th>Tavolo R2</th>
+            <th>Cella +</th>
+            <th>Cella -</th>
           </tr>
         </thead>
         <tbody id="cucinaTableBody"></tbody>
@@ -89,8 +100,6 @@
     </div>
   </section>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
