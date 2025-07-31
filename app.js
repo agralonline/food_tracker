@@ -11,117 +11,42 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
 
 // DOM Elements
-const loginSection = document.getElementById('loginSection');
-const loginForm = document.getElementById('loginForm');
-const loginError = document.getElementById('loginError');
+const alimentiSection = document.getElementById('alimentiSection');
+const foodForm = document.getElementById('foodForm');
+const foodTableBody = document.querySelector('#foodTable tbody');
+const exportAlimentiBtn = document.getElementById('exportAlimentiBtn');
 
-const appSection = document.getElementById('appSection');
-const logoutBtn = document.getElementById('logoutBtn');
+const alimentiBtn = document.getElementById('alimentiBtn');
+const temperatureBtn = document.getElementById('temperatureBtn');
+const temperatureSection = document.getElementById('temperatureSection');
 
-const productSelect = document.getElementById('productSelect');
-const itemForm = document.getElementById('itemForm');
-const datePreparedInput = document.getElementById('datePrepared');
-const expiryDateInput = document.getElementById('expiryDate');
-const submitBtn = document.getElementById('submitBtn');
-const cancelEditBtn = document.getElementById('cancelEditBtn');
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
 
-const itemsTableBody = document.querySelector('#itemsTable tbody');
+let editingId = null;
 
-let editingItemId = null;
-let productsList = [];
-
-// User credentials hardcoded for demo
-const USERNAME = "Admin";
-const PASSWORD = "Miraggio@46";
-
-// --------- Authentication ---------
-function showLogin(show) {
-  if(show) {
-    loginSection.classList.remove('hidden');
-    appSection.classList.add('hidden');
-    logoutBtn.classList.add('hidden');
-  } else {
-    loginSection.classList.add('hidden');
-    appSection.classList.remove('hidden');
-    logoutBtn.classList.remove('hidden');
-  }
+function formatDate(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('it-IT');
 }
 
-loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-
-  if(username === USERNAME && password === PASSWORD){
-    localStorage.setItem('loggedIn', 'true');
-    loginError.textContent = '';
-    showLogin(false);
-    loadProducts();
-    loadItems();
-  } else {
-    loginError.textContent = 'Username o password errati.';
-  }
-});
-
-logoutBtn.addEventListener('click', () => {
-  localStorage.removeItem('loggedIn');
-  location.reload();
-});
-
-// Check login status on page load
-if(localStorage.getItem('loggedIn') === 'true'){
-  showLogin(false);
-  loadProducts();
-  loadItems();
-} else {
-  showLogin(true);
-}
-
-// --------- Products (reusable dropdown) ---------
-function loadProducts(){
-  // Load products from Firestore collection 'products'
-  db.collection('products').orderBy('name').get().then(snapshot => {
-    productsList = [];
-    productSelect.innerHTML = '<option value="" disabled selected>Seleziona prodotto</option>';
-    snapshot.forEach(doc => {
-      const product = doc.data();
-      productsList.push(product.name);
-      const option = document.createElement('option');
-      option.value = product.name;
-      option.textContent = product.name;
-      productSelect.appendChild(option);
-    });
-  }).catch(err => {
-    console.error("Errore caricamento prodotti:", err);
-  });
-}
-
-// --------- Items (food tracking) ---------
-
-function loadItems(){
-  db.collection('items').orderBy('expiryDate').onSnapshot(snapshot => {
-    const items = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      items.push({id: doc.id, ...data});
-    });
-    renderItems(items);
-  }, err => {
-    console.error("Errore caricamento items:", err);
-  });
+function resetForm(){
+  foodForm.reset();
+  editingId = null;
+  foodForm.querySelector('button[type=submit]').textContent = 'Aggiungi';
 }
 
 function renderItems(items){
-  // Sort: expired first, then expiring soon, then fresh
   const now = new Date();
   const msInDay = 24*60*60*1000;
 
+  // Sort: expired first, then expiring soon, then fresh
   items.sort((a,b) => {
-    const aExp = new Date(a.expiryDate);
-    const bExp = new Date(b.expiryDate);
+    const aExp = new Date(a.scadenza);
+    const bExp = new Date(b.scadenza);
     const aDiff = aExp - now;
     const bDiff = bExp - now;
 
@@ -134,126 +59,142 @@ function renderItems(items){
     const prioB = priority(bDiff);
 
     if(prioA !== prioB) return prioA - prioB;
-    return aExp - bExp; // if same priority, earlier expiry first
+    return aExp - bExp;
   });
 
-  itemsTableBody.innerHTML = '';
-
+  foodTableBody.innerHTML = '';
   items.forEach(item => {
     const tr = document.createElement('tr');
-    const expiry = new Date(item.expiryDate);
+    const expiry = new Date(item.scadenza);
     const diff = expiry - now;
 
-    // Highlight rows
     if(diff < 0){
       tr.classList.add('expired');
     } else if(diff <= msInDay){
-      tr.classList.add('expiring-soon');
+      tr.classList.add('expiring');
     }
 
-    // Columns: product, datePrepared, expiryDate, actions
     tr.innerHTML = `
-      <td>${item.product}</td>
-      <td>${formatDate(item.datePrepared)}</td>
-      <td>${formatDate(item.expiryDate)}</td>
+      <td>${formatDate(item.data)}</td>
+      <td>${item.prodotto}</td>
+      <td>${item.quantita || ''}</td>
+      <td>${item.processo || ''}</td>
+      <td>${formatDate(item.scadenza)}</td>
       <td>
-        <button class="action-btn" data-id="${item.id}" data-action="edit">Modifica</button>
-        <button class="action-btn" data-id="${item.id}" data-action="delete">Elimina</button>
+        <button class="edit-btn" data-id="${item.id}">Modifica</button>
+        <button class="delete-btn" data-id="${item.id}">Elimina</button>
       </td>
     `;
-
-    itemsTableBody.appendChild(tr);
+    foodTableBody.appendChild(tr);
   });
 
-  // Attach event listeners for edit/delete buttons
-  itemsTableBody.querySelectorAll('button').forEach(button => {
-    button.addEventListener('click', handleItemAction);
+  // Add event listeners for edit and delete buttons
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.onclick = () => startEdit(btn.dataset.id);
   });
-}
-
-function handleItemAction(e){
-  const btn = e.currentTarget;
-  const id = btn.getAttribute('data-id');
-  const action = btn.getAttribute('data-action');
-
-  if(action === 'edit'){
-    startEditItem(id);
-  } else if(action === 'delete'){
-    if(confirm('Sei sicuro di voler eliminare questo elemento?')){
-      db.collection('items').doc(id).delete();
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.onclick = () => {
+      if(confirm('Sei sicuro di voler eliminare questo elemento?')){
+        db.collection('items').doc(btn.dataset.id).delete();
+      }
     }
-  }
+  });
 }
 
-function startEditItem(id){
+function startEdit(id){
   db.collection('items').doc(id).get().then(doc => {
     if(doc.exists){
       const data = doc.data();
-      editingItemId = id;
-      productSelect.value = data.product;
-      datePreparedInput.value = data.datePrepared;
-      expiryDateInput.value = data.expiryDate;
-      submitBtn.textContent = 'Salva';
-      cancelEditBtn.classList.remove('hidden');
+      editingId = id;
+      foodForm.data.value = data.data;
+      foodForm.prodotto.value = data.prodotto;
+      foodForm.quantita.value = data.quantita || '';
+      foodForm.processo.value = data.processo || '';
+      foodForm.scadenza.value = data.scadenza;
+      foodForm.querySelector('button[type=submit]').textContent = 'Salva';
     }
   });
 }
 
-cancelEditBtn.addEventListener('click', () => {
-  resetForm();
+// Load items and listen for changes realtime
+db.collection('items').onSnapshot(snapshot => {
+  const items = [];
+  snapshot.forEach(doc => {
+    items.push({id: doc.id, ...doc.data()});
+  });
+  renderItems(items);
 });
 
-itemForm.addEventListener('submit', (e) => {
+// Handle form submit
+foodForm.addEventListener('submit', e => {
   e.preventDefault();
-
-  const product = productSelect.value;
-  const datePrepared = datePreparedInput.value;
-  const expiryDate = expiryDateInput.value;
-
-  if(!product || !datePrepared || !expiryDate){
-    alert('Compila tutti i campi');
-    return;
-  }
-
-  const itemData = {
-    product,
-    datePrepared,
-    expiryDate
+  const newItem = {
+    data: foodForm.data.value,
+    prodotto: foodForm.prodotto.value.trim(),
+    quantita: foodForm.quantita.value.trim(),
+    processo: foodForm.processo.value.trim(),
+    scadenza: foodForm.scadenza.value
   };
 
-  if(editingItemId){
-    // Update
-    db.collection('items').doc(editingItemId).set(itemData)
-      .then(() => {
-        resetForm();
-      })
-      .catch(err => alert('Errore aggiornamento: ' + err));
+  if(editingId){
+    db.collection('items').doc(editingId).update(newItem).then(() => {
+      resetForm();
+    });
   } else {
-    // Add new
-    db.collection('items').add(itemData)
-      .then(() => {
-        resetForm();
-      })
-      .catch(err => alert('Errore aggiunta: ' + err));
+    db.collection('items').add(newItem).then(() => {
+      resetForm();
+    });
   }
 });
 
-// Reset form to default state
-function resetForm(){
-  editingItemId = null;
-  productSelect.value = '';
-  datePreparedInput.value = '';
-  expiryDateInput.value = '';
-  submitBtn.textContent = 'Aggiungi';
-  cancelEditBtn.classList.add('hidden');
-}
+// Export PDF for Alimenti
+exportAlimentiBtn.onclick = () => {
+  import('jspdf').then(jsPDFModule => {
+    const { jsPDF } = jsPDFModule;
+    const doc = new jsPDF();
 
-// Format date dd/mm/yyyy
-function formatDate(dateString){
-  if(!dateString) return '';
-  const d = new Date(dateString);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth()+1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
+    doc.text('Elenco Alimenti', 14, 20);
+    const rows = [];
+    foodTableBody.querySelectorAll('tr').forEach(tr => {
+      const row = [];
+      tr.querySelectorAll('td').forEach(td => {
+        if(td.textContent) row.push(td.textContent.trim());
+      });
+      if(row.length) rows.push(row);
+    });
+
+    doc.autoTable({
+      head: [['Data', 'Prodotto', 'Quantità', 'Processo', 'Scadenza']],
+      body: rows,
+      startY: 30
+    });
+
+    doc.save('elenco-alimenti.pdf');
+  });
+};
+
+// Toggle sections
+alimentiBtn.onclick = () => {
+  alimentiSection.classList.remove('hidden');
+  temperatureSection.classList.add('hidden');
+};
+temperatureBtn.onclick = () => {
+  alimentiSection.classList.add('hidden');
+  temperatureSection.classList.remove('hidden');
+};
+
+// Dark mode toggle
+themeToggle.onclick = () => {
+  body.classList.toggle('dark-mode');
+  // Save preference
+  if(body.classList.contains('dark-mode')){
+    localStorage.setItem('theme', 'dark');
+  } else {
+    localStorage.setItem('theme', 'light');
+  }
+};
+
+// Load theme preference on start
+if(localStorage.getItem('theme') === 'dark'){
+  body.classList.add('dark-mode');
 }
