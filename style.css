@@ -1,81 +1,71 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f9f9f9;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f5f7fa;
   color: #333;
 }
 
 header {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(to right, #4facfe, #00f2fe);
 }
 
 button {
-  margin: 0 10px;
-  padding: 10px 20px;
-  background: #1976d2;
-  color: white;
+  padding: 0.5rem 1rem;
   border: none;
+  background: #007bff;
+  color: white;
   border-radius: 6px;
   cursor: pointer;
 }
 
-button:hover {
-  background: #135ba1;
+.hidden {
+  display: none;
 }
 
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 15px;
+form, table {
+  margin: 1rem auto;
+  max-width: 95%;
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
 }
 
-input[type="text"],
-input[type="date"],
-input[type="time"],
-select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+form input, form select {
+  margin: 0.5rem;
+  padding: 0.5rem;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 30px;
 }
 
 th, td {
   border: 1px solid #ddd;
-  padding: 6px;
+  padding: 0.5rem;
   text-align: center;
-}
-
-th {
-  background-color: #1976d2;
-  color: white;
 }
 
 .temp-cell {
   position: relative;
 }
 
-.temp-input {
+.temp-cell input {
   width: 60px;
-  padding-right: 22px;
+  padding-right: 18px;
 }
 
 .deg {
   position: absolute;
-  right: 5px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 12px;
-  color: #888;
-}
-
-.hidden {
-  display: none;
+  font-size: 0.8rem;
+  color: #555;
 }
