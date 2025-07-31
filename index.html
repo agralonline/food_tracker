@@ -2,115 +2,136 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alimenti e Temperature</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script defer src="app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registro Alimenti e Temperature</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Registro Alimenti e Temperature</h1>
-    <nav>
-      <button id="btnAlimenti">Alimenti</button>
-      <button id="btnTemperature">Temperature</button>
-    </nav>
-  </header>
+  <div class="container">
+    <header>
+      <h1>Registro Alimenti e Temperature</h1>
+      <div class="top-controls">
+        <button id="alimentiBtn">Alimenti</button>
+        <button id="temperatureBtn">Temperature</button>
+        <div class="theme-toggle">
+          <label class="switch">
+            <input type="checkbox" id="themeToggle" />
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </header>
 
-  <section id="alimentiSection">
-    <h2>Alimenti</h2>
-    <form id="foodForm">
-      <input type="date" id="foodData" required>
-      <input type="text" id="foodNome" placeholder="Nome" required>
-      <input type="number" id="foodQuantita" placeholder="Quantità" required>
-      <input type="text" id="foodProcesso" placeholder="Processo" required>
-      <input type="date" id="foodScadenza" required>
-      <button type="submit">Aggiungi</button>
-      <button type="button" id="btnCancelEditFood" style="display:none">Annulla</button>
-    </form>
-    <table id="foodTable">
-      <thead>
-        <tr>
-          <th>Data</th><th>Nome</th><th>Quantità</th><th>Processo</th><th>Scadenza</th><th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+    <!-- ALIMENTI SECTION -->
+    <section id="alimentiSection" class="section">
+      <form id="foodForm">
+        <h2>Aggiungi Alimento</h2>
+        <input type="date" id="data" required />
+        <input type="text" id="prodotto" placeholder="Nome Prodotto" required />
+        <input type="number" id="quantita" placeholder="Quantità" min="1" required />
+        <select id="processo" required>
+          <option value="">-- Processo --</option>
+        </select>
+        <input type="date" id="scadenza" required />
+        <button type="submit">Salva</button>
+      </form>
 
-  <section id="temperatureSection" style="display:none">
-    <div class="tabs">
-      <button onclick="toggleTempTab('sala')">Sala</button>
-      <button onclick="toggleTempTab('cucina')">Cucina</button>
-    </div>
+      <h2>Elenco Alimenti</h2>
+      <div class="table-controls">
+        <button id="exportPdfBtn">Esporta PDF</button>
+        <label for="sortSelect">Ordina per:</label>
+        <select id="sortSelect">
+          <option value="data">Data</option>
+          <option value="scadenza">Scadenza</option>
+          <option value="prodotto">Nome</option>
+          <option value="processo">Processo</option>
+        </select>
+      </div>
 
-    <div id="salaTab">
-      <h2>Temperature Sala</h2>
-      <input type="number" id="salaMese" placeholder="Mese" min="1" max="12">
-      <input type="number" id="salaAnno" placeholder="Anno">
-      <button onclick="loadTemperatureTable('sala', salaMese.value, salaAnno.value, true)">Carica</button>
-      <button onclick="saveTemperatureTable('sala', salaMese.value, salaAnno.value, true)">Salva</button>
-      <button id="btnExportSala">Esporta PDF</button>
-      <table id="salaTable">
+      <table id="foodTable">
         <thead>
           <tr>
-            <th>Giorno</th><th>Ora</th><th>Operatore</th>
-            <th>Banco</th><th>Bindi</th><th>Vetrinetta</th><th>Levissima</th><th>Cantina Vini</th>
+            <th>Data</th>
+            <th>Prodotto</th>
+            <th>Quantità</th>
+            <th>Processo</th>
+            <th>Scadenza</th>
+            <th>Azioni</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-    </div>
+    </section>
 
-    <div id="cucinaTab" style="display:none">
-      <h2>Temperature Cucina</h2>
-      <input type="number" id="cucinaMese" placeholder="Mese" min="1" max="12">
-      <input type="number" id="cucinaAnno" placeholder="Anno">
-      <button onclick="loadTemperatureTable('cucina', cucinaMese.value, cucinaAnno.value, false)">Carica</button>
-      <button onclick="saveTemperatureTable('cucina', cucinaMese.value, cucinaAnno.value, false)">Salva</button>
-      <button id="btnExportCucina">Esporta PDF</button>
-      <table id="cucinaTable">
-        <thead>
-          <tr>
-            <th>Giorno</th><th>Ora</th><th>Operatore</th>
-            <th>Cucina</th><th>Cucina 2</th><th>Pizzeria</th><th>Tavolo R1</th><th>Tavolo R2</th><th>Cella +</th><th>Cella -</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
+    <!-- TEMPERATURE SECTION -->
+    <section id="temperatureSection" class="section hidden">
+      <h2>Registro Controllo delle Temperature</h2>
+      <div class="temperature-controls">
+        <label for="areaSelect">Seleziona Area:</label>
+        <select id="areaSelect">
+          <option value="">-- Seleziona --</option>
+          <option value="sala">Sala</option>
+          <option value="cucina">Cucina</option>
+        </select>
+      </div>
 
-  <script>
-    const btnAlimenti = document.getElementById('btnAlimenti');
-    const btnTemperature = document.getElementById('btnTemperature');
-    const alimentiSection = document.getElementById('alimentiSection');
-    const temperatureSection = document.getElementById('temperatureSection');
-    const salaTab = document.getElementById('salaTab');
-    const cucinaTab = document.getElementById('cucinaTab');
+      <!-- SALA TABLE -->
+      <div id="salaTable" class="temp-table hidden">
+        <div class="sheet-header">
+          <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
+          <div>Mese: <span id="meseSala"></span> / Anno: <span id="annoSala"></span></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Giorno</th>
+              <th>Ora</th>
+              <th>Operatore</th>
+              <th>Banco</th>
+              <th>Bindi</th>
+              <th>Vetrinetta</th>
+              <th>Levissima</th>
+              <th>Cantina Vini</th>
+            </tr>
+          </thead>
+          <tbody id="salaTableBody"></tbody>
+        </table>
+      </div>
 
-    btnAlimenti.onclick = () => {
-      alimentiSection.style.display = 'block';
-      temperatureSection.style.display = 'none';
-    };
+      <!-- CUCINA TABLE -->
+      <div id="cucinaTable" class="temp-table hidden">
+        <div class="sheet-header">
+          <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
+          <div>Mese: <span id="meseCucina"></span> / Anno: <span id="annoCucina"></span></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Giorno</th>
+              <th>Ora</th>
+              <th>Operatore</th>
+              <th>Cucina</th>
+              <th>Cucina 2</th>
+              <th>Pizzeria</th>
+              <th>Tavolo R1</th>
+              <th>Tavolo R2</th>
+              <th>Cella +</th>
+              <th>Cella -</th>
+            </tr>
+          </thead>
+          <tbody id="cucinaTableBody"></tbody>
+        </table>
+      </div>
 
-    btnTemperature.onclick = () => {
-      alimentiSection.style.display = 'none';
-      temperatureSection.style.display = 'block';
-    };
+      <button id="exportTempPdfBtn" class="hidden">Esporta Temperature PDF</button>
+    </section>
+  </div>
 
-    function toggleTempTab(tab) {
-      if(tab === 'sala') {
-        salaTab.style.display = 'block';
-        cucinaTab.style.display = 'none';
-      } else {
-        salaTab.style.display = 'none';
-        cucinaTab.style.display = 'block';
-      }
-    }
-  </script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
