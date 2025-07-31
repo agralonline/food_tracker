@@ -42,6 +42,32 @@
       <button type="submit">Salva</button>
       <button type="button" id="exportPdfBtn">Esporta PDF</button>
     </form>
+      <form id="foodForm">
+  <h2>Aggiungi Alimento</h2>
+  
+  <input type="date" id="data" required />
+
+  <input type="text" id="prodotto" placeholder="Nome Prodotto" required />
+
+  <input type="text" id="quantita" placeholder="es: 3pkt, 50grm" required />
+
+  <select id="processo" name="processo" required>
+    <option value="">-- Seleziona processo --</option>
+    <option value="Abbattuto -18° C">Abbattuto -18° C</option>
+    <option value="Abbattuto +3° C">Abbattuto +3° C</option>
+    <option value="Decongelato">Decongelato</option>
+  </select>
+
+  <input type="date" id="scadenza" required />
+
+  <div class="sottovuoto-group">
+    <label>Sottovuoto:</label>
+    <label><input type="radio" name="sottovuoto" value="Sì" required /> Sì</label>
+    <label><input type="radio" name="sottovuoto" value="No" required /> No</label>
+  </div>
+
+  <button type="submit">Salva</button>
+</form>
 
     <table id="foodTable" aria-label="Tabella alimenti">
       <thead>
