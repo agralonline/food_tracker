@@ -1,150 +1,386 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Registro Alimenti e Temperature</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Temperature Control - Sala & Cucina</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    #monthYearInput {
+      margin: 10px auto;
+      display: block;
+      font-size: 16px;
+      padding: 5px;
+      width: 150px;
+    }
+    .tabs {
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .tabs button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 5px 8px;
+      text-align: center;
+      min-width: 70px;
+      user-select: none;
+    }
+    th {
+      background-color: #eee;
+    }
+    td[contenteditable="true"] {
+      background-color: #f9f9f9;
+      cursor: text;
+    }
+    #exportBtn {
+      display: block;
+      margin: 0 auto 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Registro Alimenti e Temperature</h1>
-      <div class="top-controls">
-        <button id="alimentiBtn" class="active">Alimenti</button>
-        <button id="temperatureBtn">Temperature</button>
-        <div class="theme-toggle">
-          <label class="switch">
-            <input type="checkbox" id="themeToggle" />
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <button id="logoutBtn">Logout</button>
-      </div>
-    </header>
- 
-    <!-- ALIMENTI SECTION -->
-    <section id="alimentiSection" class="section">
-      <form id="foodForm">
-        <h2>Aggiungi Alimento</h2>
-        <input type="date" id="data" required />
-        <input type="text" id="prodotto" placeholder="Nome Prodotto" required />
-        <input type="text" id="quantita" placeholder="Quantità" required />
-        <select id="processo" required>
-          <option value="">-- Processo --</option>
-          <option value="Abbattuto -18° C">Abbattuto -18° C</option>
-          <option value="Abbattuto +3° C">Abbattuto +3° C</option>
-          <option value="Decongelato">Decongelato</option>
-        </select>
-        <select id="sottovuoto" required>
-          <option value="">Sottovuoto?</option>
-          <option value="Sì">Sì</option>
-          <option value="No">No</option>
-        </select>
-        <input type="date" id="scadenza" required />
-        <button type="submit">Salva</button>
-      </form>
 
-      <h2>Elenco Alimenti</h2>
-      <div class="table-controls">
-        <button id="exportPdfBtn">Esporta PDF</button>
-        <label for="sortSelect">Ordina per:</label>
-        <select id="sortSelect">
-          <option value="data">Data</option>
-          <option value="scadenza">Scadenza</option>
-          <option value="prodotto">Nome</option>
-          <option value="processo">Processo</option>
-        </select>
-      </div>
+  <h1>REGISTRO CONTROLLO DELLE TEMPERATURE</h1>
+  <input type="month" id="monthYearInput" />
 
-      <table id="foodTable">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Prodotto</th>
-            <th>Quantità</th>
-            <th>Processo</th>
-            <th>Sottovuoto</th>
-            <th>Scadenza</th>
-            <th>Azioni</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <!-- TEMPERATURE SECTION -->
-    <section id="temperatureSection" class="section hidden">
-      <h2>Registro Controllo delle Temperature</h2>
-      <div class="temperature-controls">
-        <label for="areaSelect">Seleziona Area:</label>
-        <select id="areaSelect">
-          <option value="">-- Seleziona --</option>
-          <option value="sala">Sala</option>
-          <option value="cucina">Cucina</option>
-        </select>
-      </div>
-
-      <!-- SALA TABLE -->
-      <div id="salaTable" class="temp-table hidden">
-        <div class="sheet-header">
-          <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
-          <div>Mese: <span id="meseSala"></span> / Anno: <span id="annoSala"></span></div>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Giorno</th>
-                <th>Ora</th>
-                <th>Operatore</th>
-                <th>Banco</th>
-                <th>Bindi</th>
-                <th>Vetrinetta</th>
-                <th>Levissima</th>
-                <th>Cantina Vini</th>
-              </tr>
-            </thead>
-            <tbody id="salaTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- CUCINA TABLE -->
-      <div id="cucinaTable" class="temp-table hidden">
-        <div class="sheet-header">
-          <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
-          <div>Mese: <span id="meseCucina"></span> / Anno: <span id="annoCucina"></span></div>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Giorno</th>
-                <th>Ora</th>
-                <th>Operatore</th>
-                <th>Cucina</th>
-                <th>Cucina 2</th>
-                <th>Pizzeria</th>
-                <th>Tavolo R1</th>
-                <th>Tavolo R2</th>
-                <th>Cella +</th>
-                <th>Cella -</th>
-              </tr>
-            </thead>
-            <tbody id="cucinaTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <button id="exportTempPdfBtn" class="hidden">Esporta Temperature PDF</button>
-    </section>
+  <div class="tabs">
+    <button id="btnSala" class="active">Temperature Sala</button>
+    <button id="btnCucina">Temperature Cucina</button>
   </div>
 
-  <!-- Firebase -->
+  <table id="tableSala" style="display: table;">
+    <thead>
+      <tr>
+        <th>Giorno</th>
+        <th>Ora</th>
+        <th>Operatore</th>
+        <th>Banco</th>
+        <th>Bindi</th>
+        <th>Altri</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <table id="tableCucina" style="display: none;">
+    <thead>
+      <tr>
+        <th>Giorno</th>
+        <th>Ora</th>
+        <th>Operatore</th>
+        <th>Cucina</th>
+        <th>Cucina 2</th>
+        <th>Altro</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button id="exportBtn">Esporta in PDF</button>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="app.js"></script>
+
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    // Your Firebase config here - replace with your own config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Constants
+    const daysInMonth = 31;
+    const salaColumns = ['Giorno', 'Ora', 'Operatore', 'Banco', 'Bindi', 'Altri'];
+    const cucinaColumns = ['Giorno', 'Ora', 'Operatore', 'Cucina', 'Cucina 2', 'Altro'];
+
+    // Elements
+    const tableSala = document.getElementById('tableSala');
+    const tableCucina = document.getElementById('tableCucina');
+    const tbodySala = tableSala.querySelector('tbody');
+    const tbodyCucina = tableCucina.querySelector('tbody');
+    const btnSala = document.getElementById('btnSala');
+    const btnCucina = document.getElementById('btnCucina');
+    const exportBtn = document.getElementById('exportBtn');
+    const monthYearInput = document.getElementById('monthYearInput');
+
+    // Current view and date
+    let currentView = 'Sala'; // or 'Cucina'
+    let currentMonthYear = '';
+
+    // Initialize monthYearInput to current month and year in format yyyy-mm
+    function setCurrentMonthYear() {
+      const now = new Date();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const year = now.getFullYear();
+      currentMonthYear = `${year}-${month}`;
+      monthYearInput.value = currentMonthYear;
+    }
+
+    // Create empty rows for Sala and Cucina
+    function createEmptyRows(tableBody, columns) {
+      tableBody.innerHTML = '';
+      for (let day = 1; day <= daysInMonth; day++) {
+        const tr = document.createElement('tr');
+        for (let col = 0; col < columns.length; col++) {
+          const td = document.createElement('td');
+          if (col === 0) {
+            td.textContent = day;
+            td.contentEditable = "false";
+          } else {
+            td.contentEditable = "true";
+            td.dataset.col = columns[col];
+            td.dataset.day = day;
+          }
+          tr.appendChild(td);
+        }
+        tableBody.appendChild(tr);
+      }
+    }
+
+    // Switch tabs (Sala / Cucina)
+    function switchTab(view) {
+      currentView = view;
+      if (view === 'Sala') {
+        tableSala.style.display = 'table';
+        tableCucina.style.display = 'none';
+        btnSala.classList.add('active');
+        btnCucina.classList.remove('active');
+      } else {
+        tableSala.style.display = 'none';
+        tableCucina.style.display = 'table';
+        btnSala.classList.remove('active');
+        btnCucina.classList.add('active');
+      }
+      loadData();
+    }
+
+    // Load data from Firebase and populate the table for current view and monthYear
+    async function loadData() {
+      const collectionName = currentView.toLowerCase(); // 'sala' or 'cucina'
+      const docId = currentMonthYear;
+
+      // Clear table rows
+      if (currentView === 'Sala') {
+        createEmptyRows(tbodySala, salaColumns);
+      } else {
+        createEmptyRows(tbodyCucina, cucinaColumns);
+      }
+
+      try {
+        const doc = await db.collection(collectionName).doc(docId).get();
+        if (!doc.exists) {
+          console.log('No data for', collectionName, docId);
+          return;
+        }
+        const data = doc.data();
+        if (!data || !data.rows) return;
+
+        // Fill the table cells with saved data
+        const rows = data.rows; // expected: array of objects with keys = column names, including Giorno
+
+        rows.forEach(row => {
+          const day = row.Giorno;
+          if (!day) return; // skip invalid
+
+          let tbody = currentView === 'Sala' ? tbodySala : tbodyCucina;
+          // Find the row in tbody for that day
+          const tr = tbody.children[day - 1];
+          if (!tr) return;
+
+          for (const [key, value] of Object.entries(row)) {
+            if (key === 'Giorno') continue; // skip day cell, already set
+
+            // Find the td with data-col = key
+            for (const td of tr.children) {
+              if (td.dataset.col === key) {
+                td.textContent = value || '';
+                break;
+              }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+
+    // Save current table data to Firebase
+    async function saveData() {
+      const collectionName = currentView.toLowerCase();
+      const docId = currentMonthYear;
+
+      // Collect all rows data
+      const tbody = currentView === 'Sala' ? tbodySala : tbodyCucina;
+      const rowsData = [];
+
+      for (let i = 0; i < tbody.children.length; i++) {
+        const tr = tbody.children[i];
+        const rowObj = {};
+        for (const td of tr.children) {
+          const col = td.dataset.col || salaColumns[0]; // 'Giorno' column may not have dataset.col
+          if (col === undefined) continue;
+          if (col === 'Giorno') {
+            rowObj[col] = parseInt(td.textContent);
+          } else {
+            rowObj[col] = td.textContent.trim();
+          }
+        }
+        // Ensure Giorno is set explicitly:
+        rowObj.Giorno = i + 1;
+        rowsData.push(rowObj);
+      }
+
+      try {
+        await db.collection(collectionName).doc(docId).set({
+          rows: rowsData,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('Data saved successfully');
+      } catch (error) {
+        console.error('Error saving data:', error);
+      }
+    }
+
+    // Save data with debounce (delay) to avoid excessive writes
+    let saveTimeout;
+    function scheduleSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(saveData, 1500);
+    }
+
+    // Attach event listeners for contenteditable changes to trigger save
+    function attachEditListeners() {
+      [tbodySala, tbodyCucina].forEach(tbody => {
+        tbody.addEventListener('input', e => {
+          if (e.target && e.target.contentEditable === "true") {
+            scheduleSave();
+          }
+        });
+      });
+    }
+
+    // Export current visible table to PDF
+    async function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'pt', 'a4');
+      doc.setFontSize(14);
+      doc.text("REGISTRO CONTROLLO DELLE TEMPERATURE", 40, 40);
+      doc.text(`MESE / ANNO: ${currentMonthYear}`, 40, 60);
+
+      const headers = currentView === 'Sala' ? salaColumns : cucinaColumns;
+
+      // Prepare rows
+      const tbody = currentView === 'Sala' ? tbodySala : tbodyCucina;
+      const rows = [];
+
+      for (const tr of tbody.children) {
+        const row = [];
+        for (const td of tr.children) {
+          row.push(td.textContent.trim());
+        }
+        rows.push(row);
+      }
+
+      // AutoTable plugin would be best, but since we only load jspdf core here,
+      // we can manually draw a simple table
+
+      // Calculate starting point
+      const startX = 40;
+      let startY = 80;
+      const rowHeight = 20;
+      const colWidths = [40, 50, 70, 70, 70, 70]; // total approx 370
+
+      // Draw header
+      doc.setFont(undefined, 'bold');
+      let x = startX;
+      for (let i = 0; i < headers.length; i++) {
+        doc.text(headers[i], x + 2, startY);
+        x += colWidths[i];
+      }
+      doc.setFont(undefined, 'normal');
+      startY += rowHeight;
+
+      // Draw rows
+      for (const row of rows) {
+        x = startX;
+        for (let i = 0; i < row.length; i++) {
+          doc.text(row[i], x + 2, startY);
+          x += colWidths[i];
+        }
+        startY += rowHeight;
+
+        // Check if page break needed
+        if (startY > doc.internal.pageSize.height - 40) {
+          doc.addPage();
+          startY = 40;
+        }
+      }
+
+      doc.save(`Registro_Temperature_${currentView}_${currentMonthYear}.pdf`);
+    }
+
+    // Handle month/year change
+    monthYearInput.addEventListener('change', () => {
+      currentMonthYear = monthYearInput.value;
+      loadData();
+    });
+
+    // Tab buttons
+    btnSala.addEventListener('click', () => switchTab('Sala'));
+    btnCucina.addEventListener('click', () => switchTab('Cucina'));
+
+    exportBtn.addEventListener('click', exportToPDF);
+
+    // Initialize
+    setCurrentMonthYear();
+    createEmptyRows(tbodySala, salaColumns);
+    createEmptyRows(tbodyCucina, cucinaColumns);
+    attachEditListeners();
+    loadData();
+
+  </script>
+
 </body>
 </html>
