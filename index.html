@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tracker App</title>
+  <title>Registro Alimenti & Temperature</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
   <header>
@@ -15,39 +17,39 @@
   <!-- Alimenti Section -->
   <section id="alimentiSection">
     <form id="foodForm">
-      <input type="date" id="data" required placeholder="Date" />
-      <input type="text" id="prodotto" required placeholder="Prodotto" />
-      <input type="text" id="quantita" required placeholder="Quantità" />
-      <select id="processo">
+      <input type="date" id="data" required />
+      <input type="text" id="prodotto" placeholder="Prodotto" required />
+      <input type="text" id="quantita" placeholder="Quantità" required />
+      <select id="processo" required>
         <option value="">Processo</option>
-        <option>Abbattuto -18° C</option>
-        <option>Abbattuto +3° C</option>
-        <option>Decongelato</option>
+        <option value="Abbattuto -18° C">Abbattuto -18° C</option>
+        <option value="Abbattuto +3° C">Abbattuto +3° C</option>
+        <option value="Decongelato">Decongelato</option>
       </select>
       <select id="sottovuoto" required>
-        <option value="">Sottovuoto?</option>
-        <option>Sì</option>
-        <option>No</option>
+        <option value="">Sottovuoto</option>
+        <option value="Si">Si</option>
+        <option value="No">No</option>
       </select>
-      <input type="date" id="scadenza" required placeholder="Expiry" />
+      <input type="date" id="scadenza" required />
       <button type="submit">Salva</button>
     </form>
 
-    <label>Ordina per:
-      <select id="sortSelect">
-        <option value="data">Data</option>
-        <option value="scadenza">Scadenza</option>
-        <option value="prodotto">Nome</option>
-        <option value="processo">Processo</option>
-      </select>
-    </label>
-
-    <button onclick="exportAlimentiPDF()">📄 Esporta PDF</button>
+    <select id="sortSelect">
+      <option value="data">Ordina per Data</option>
+      <option value="scadenza">Ordina per Scadenza</option>
+      <option value="prodotto">Ordina per Prodotto</option>
+    </select>
 
     <table id="foodTable">
       <thead>
         <tr>
-          <th>Data</th><th>Prodotto</th><th>Quantità</th><th>Processo</th><th>Scadenza</th><th>Elimina</th>
+          <th>Data</th>
+          <th>Prodotto</th>
+          <th>Quantità</th>
+          <th>Processo</th>
+          <th>Scadenza</th>
+          <th>Elimina</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -56,43 +58,56 @@
 
   <!-- Temperature Section -->
   <section id="temperatureSection" class="hidden">
+    <label for="areaSelect">Area:</label>
     <select id="areaSelect">
       <option value="">Seleziona Area</option>
       <option value="sala">Sala</option>
       <option value="cucina">Cucina</option>
     </select>
 
-    <button onclick="exportTemperaturePDF('sala')">📄 PDF Sala</button>
-    <button onclick="exportTemperaturePDF('cucina')">📄 PDF Cucina</button>
-
     <div id="salaTable" class="hidden">
-      <h3>REGISTRO TEMPERATURE SALA – <span id="meseSala"></span> / <span id="annoSala"></span></h3>
-      <div class="scroll-x">
-        <table>
-          <thead>
-            <tr><th>Giorno</th><th>Ora</th><th>Operatore</th><th>Banco</th><th>Bindi</th><th>Vetrinetta</th><th>Levissima</th><th>Cantina Vini</th></tr>
-          </thead>
-          <tbody id="salaTableBody"></tbody>
-        </table>
-      </div>
+      <h3>REGISTRO CONTROLLO DELLE TEMPERATURE — SALA</h3>
+      <p><strong>Mese:</strong> <span id="meseSala"></span> / <strong>Anno:</strong> <span id="annoSala"></span></p>
+      <table>
+        <thead>
+          <tr>
+            <th>Giorno</th>
+            <th>Ora</th>
+            <th>Operatore</th>
+            <th>Banco</th>
+            <th>Bindi</th>
+            <th>Vetrinetta</th>
+            <th>Levissima</th>
+            <th>Cantina Vini</th>
+          </tr>
+        </thead>
+        <tbody id="salaTableBody"></tbody>
+      </table>
     </div>
 
     <div id="cucinaTable" class="hidden">
-      <h3>REGISTRO TEMPERATURE CUCINA – <span id="meseCucina"></span> / <span id="annoCucina"></span></h3>
-      <div class="scroll-x">
-        <table>
-          <thead>
-            <tr><th>Giorno</th><th>Ora</th><th>Operatore</th><th>Cucina</th><th>Cucina 2</th><th>Pizzeria</th><th>Tavolo R1</th><th>Tavolo R2</th><th>Cella +</th><th>Cella -</th></tr>
-          </thead>
-          <tbody id="cucinaTableBody"></tbody>
-        </table>
-      </div>
+      <h3>REGISTRO CONTROLLO DELLE TEMPERATURE — CUCINA</h3>
+      <p><strong>Mese:</strong> <span id="meseCucina"></span> / <strong>Anno:</strong> <span id="annoCucina"></span></p>
+      <table>
+        <thead>
+          <tr>
+            <th>Giorno</th>
+            <th>Ora</th>
+            <th>Operatore</th>
+            <th>Cucina</th>
+            <th>Cucina 2</th>
+            <th>Pizzeria</th>
+            <th>Tavolo R1</th>
+            <th>Tavolo R2</th>
+            <th>Cella +</th>
+            <th>Cella -</th>
+          </tr>
+        </thead>
+        <tbody id="cucinaTableBody"></tbody>
+      </table>
     </div>
   </section>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
