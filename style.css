@@ -1,156 +1,170 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const formattedDate = `${yyyy}-${mm}-${dd}`;
+/* style.css */
+:root {
+  --primary-color: #5e60ce;
+  --secondary-color: #4ea8de;
+  --bg-color: #f0f4ff;
+  --text-color: #1a1a1a;
+  --card-bg: #ffffff;
+}
 
-  const dataInput = document.getElementById('data');
-  dataInput.value = formattedDate;
+body.dark {
+  --primary-color: #9a89f9;
+  --secondary-color: #64c7ff;
+  --bg-color: #1a1a2e;
+  --text-color: #eaeaea;
+  --card-bg: #2e2e3a;
+}
 
-  const btnAlimenti = document.getElementById('btnAlimenti');
-  const btnTemperature = document.getElementById('btnTemperature');
-  const formContainer = document.getElementById('formContainer');
-  const dataContainer = document.getElementById('dataContainer');
-  const sliderContainer = document.getElementById('sliderContainer');
-  const roomSlider = document.getElementById('roomSlider');
-  const roomLabel = document.getElementById('roomLabel');
-  const foodForm = document.getElementById('foodForm');
-  const exportPdfBtn = document.getElementById('exportPdfBtn');
-  const foodTableBody = document.querySelector('#foodTable tbody');
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
 
-  loadDataFromLocalStorage();
-  showAlimenti();
+.container {
+  padding: 1rem;
+}
 
-  btnAlimenti.addEventListener('click', showAlimenti);
-  btnTemperature.addEventListener('click', showTemperature);
+header {
+  text-align: center;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
 
-  roomSlider.addEventListener('input', () => {
-    roomLabel.textContent = roomSlider.value === '0' ? 'Sala' : 'Cucina';
-  });
+.top-controls {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-  foodForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+button {
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
 
-    const data = dataInput.value;
-    const prodotto = document.getElementById('prodotto').value.trim();
-    const quantita = document.getElementById('quantita').value || 'N/A';
-    const scelta = document.getElementById('scelta').value;
-    const scadenza = document.getElementById('scadenza').value;
+button:hover {
+  background: var(--secondary-color);
+}
 
-    if (!data || !prodotto || !scadenza || !scelta) {
-      alert('Compila tutti i campi richiesti!');
-      return;
-    }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-    addRowToTable(data, prodotto, quantita, scelta, scadenza);
-    saveDataToLocalStorage();
+input, select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin: 0.3rem;
+  width: calc(100% - 1rem);
+  max-width: 300px;
+}
 
-    foodForm.reset();
-    dataInput.value = formattedDate;
-  });
+form {
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
 
-  exportPdfBtn.addEventListener('click', () => {
-    const element = document.getElementById('foodTable');
-    const opt = {
-      margin: 0.5,
-      filename: 'elenco_alimenti.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' },
-    };
-    html2pdf().set(opt).from(element).save();
-  });
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
 
-  function showAlimenti() {
-    btnAlimenti.classList.add('active');
-    btnTemperature.classList.remove('active');
+th, td {
+  padding: 0.7rem;
+  border: 1px solid #ddd;
+  text-align: center;
+}
 
-    formContainer.style.display = 'block';
-    dataContainer.style.display = foodTableBody.children.length > 0 ? 'block' : 'none';
-    sliderContainer.style.display = 'none';
+th {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.section.hidden, .temp-table.hidden, #exportTempPdfBtn.hidden {
+  display: none;
+}
+
+.temperature-controls {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-toggle {
+  position: relative;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider.round {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: .4s;
+}
+
+.slider.round:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider.round {
+  background-color: var(--primary-color);
+}
+
+input:checked + .slider.round:before {
+  transform: translateX(26px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .top-controls {
+    flex-direction: column;
+    align-items: center;
   }
 
-  function showTemperature() {
-    btnTemperature.classList.add('active');
-    btnAlimenti.classList.remove('active');
-
-    formContainer.style.display = 'none';
-    dataContainer.style.display = 'none';
-    sliderContainer.style.display = 'flex';
-
-    roomSlider.value = '0';
-    roomLabel.textContent = 'Sala';
+  table, input, select {
+    font-size: 0.9rem;
   }
-
-  function addRowToTable(data, prodotto, quantita, scelta, scadenza) {
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-      <td>${formatDateDisplay(data)}</td>
-      <td>${escapeHtml(prodotto)}</td>
-      <td>${quantita}</td>
-      <td>${scelta}</td>
-      <td>${formatDateDisplay(scadenza)}</td>
-    `;
-    foodTableBody.appendChild(newRow);
-    dataContainer.style.display = 'block';
-  }
-
-  function saveDataToLocalStorage() {
-    const rows = foodTableBody.querySelectorAll('tr');
-    const items = [];
-
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      items.push({
-        data: formatDateISO(cells[0].textContent),
-        prodotto: cells[1].textContent,
-        quantita: cells[2].textContent,
-        scelta: cells[3].textContent,
-        scadenza: formatDateISO(cells[4].textContent),
-      });
-    });
-
-    localStorage.setItem('foodItems', JSON.stringify(items));
-  }
-
-  function loadDataFromLocalStorage() {
-    const savedData = JSON.parse(localStorage.getItem('foodItems')) || [];
-    savedData.forEach(item => {
-      addRowToTable(item.data, item.prodotto, item.quantita, item.scelta, item.scadenza);
-    });
-  }
-
-  function formatDateDisplay(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d)) return dateStr;
-    return d.toLocaleDateString('it-IT');
-  }
-
-  function formatDateISO(dateStr) {
-    if (!dateStr) return '';
-    // Convert dd/mm/yyyy or other formats back to yyyy-mm-dd if possible
-    if (dateStr.includes('/')) {
-      const parts = dateStr.split('/');
-      if (parts.length === 3) {
-        return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
-      }
-    }
-    return dateStr;
-  }
-
-  // Basic escape to prevent HTML injection in product name display
-  function escapeHtml(text) {
-    return text.replace(/[&<>"']/g, (m) => {
-      switch (m) {
-        case '&': return '&amp;';
-        case '<': return '&lt;';
-        case '>': return '&gt;';
-        case '"': return '&quot;';
-        case "'": return '&#039;';
-        default: return m;
-      }
-    });
-  }
-});
+}
