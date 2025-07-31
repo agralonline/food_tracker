@@ -248,6 +248,23 @@ td input:focus {
 .action-btn:hover {
   color: var(--primary-hover);
 }
+.sottovuoto-group {
+  margin: 12px 0;
+  font-weight: 600;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.sottovuoto-group label {
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.sottovuoto-group input[type="radio"] {
+  margin-right: 6px;
+  cursor: pointer;
+}
 
 /* Temperature Section */
 .temperature-controls {
