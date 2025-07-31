@@ -32,9 +32,12 @@
       <input type="date" id="data" name="data" required />
       <input type="text" id="prodotto" name="prodotto" placeholder="Prodotto" required />
       <input type="text" id="quantita" name="quantita" placeholder="Quantità" />
-      <select id="processo" name="processo" aria-label="Processo">
-        <option value="">-- Processo --</option>
-      </select>
+      <select id="processo" name="processo">
+  <option value="">-- Seleziona processo --</option>
+  <option value="Abbattuto -18° C">Abbattuto -18° C</option>
+  <option value="Abbattuto +3° C">Abbattuto +3° C</option>
+  <option value="Decongelato">Decongelato</option>
+</select>
       <input type="date" id="scadenza" name="scadenza" required />
       <button type="submit">Salva</button>
       <button type="button" id="exportPdfBtn">Esporta PDF</button>
