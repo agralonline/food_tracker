@@ -1,58 +1,61 @@
 body {
-  font-family: sans-serif;
-  margin: 0;
-  padding: 1rem;
+  font-family: Arial, sans-serif;
+  margin: 20px;
   background: #f9f9f9;
+  color: #333;
 }
 
 header {
-  background: #0b79d0;
-  padding: 1rem;
-  text-align: center;
-}
-
-header button {
-  margin: 0 10px;
-  padding: 0.5rem 1rem;
-  font-weight: bold;
-  background: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-section {
-  margin-top: 2rem;
-}
-
-form input, form select {
-  margin: 0.5rem;
-  padding: 0.4rem;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-top: 1rem;
-  background: white;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.hidden {
-  display: none;
+button:hover {
+  background: #135ba1;
 }
 
-.scroll-x {
-  overflow-x: auto;
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: center;
+}
+
+th {
+  background-color: #1976d2;
+  color: white;
 }
 
 .temp-cell {
@@ -61,13 +64,18 @@ button {
 
 .temp-input {
   width: 60px;
-  padding-right: 20px;
+  padding-right: 22px;
 }
 
-.temp-cell .deg {
+.deg {
   position: absolute;
   right: 5px;
-  top: 5px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 12px;
   color: #888;
+}
+
+.hidden {
+  display: none;
 }
