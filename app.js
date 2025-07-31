@@ -29,6 +29,12 @@ if (!quantitaInput.value.trim()) {
   alert('Inserisci la quantità');
   return; // stop submission
 }
+const sottovuotoRadio = document.querySelector('input[name="sottovuoto"]:checked');
+if (!sottovuotoRadio) {
+  alert('Seleziona Sottovuoto (Sì o No)');
+  return;
+}
+const sottovuotoValue = sottovuotoRadio.value;
 
 
 // Theme Toggle
