@@ -4,156 +4,168 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Registro Alimenti e Temperature</title>
-  <link rel="stylesheet" href="styles.css" />
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <!-- html2pdf -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <div class="top-controls">
-      <div>
-        <button id="alimentiBtn" aria-label="Sezione Alimenti" class="primary">Alimenti</button>
-        <button id="temperatureBtn" aria-label="Sezione Temperature" class="primary">Temperature</button>
+  <div class="container">
+    <header>
+      <h1>Registro Alimenti e Temperature</h1>
+      <div class="top-controls">
+        <button id="alimentiBtn">Alimenti</button>
+        <button id="temperatureBtn">Temperature</button>
+        <div class="theme-toggle">
+          <label class="switch">
+            <input type="checkbox" id="themeToggle" />
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <button id="logoutBtn">Logout</button>
       </div>
-      <div>
-        <label for="themeToggle">Tema scuro</label>
-        <input type="checkbox" id="themeToggle" />
-        <button id="logoutBtn" class="secondary">Logout</button>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- ALIMENTI SECTION -->
-  <section id="alimentiSection">
-    <form id="foodForm" aria-label="Form alimenti">
-      <input type="date" id="data" name="data" required />
-      <input type="text" id="prodotto" name="prodotto" placeholder="Prodotto" required />
-      <input type="text" id="quantita" name="quantita" placeholder="es: 3pkt, 50grm" />
-      <select id="processo" name="processo">
-  <option value="">-- Seleziona processo --</option>
-  <option value="Abbattuto -18° C">Abbattuto -18° C</option>
-  <option value="Abbattuto +3° C">Abbattuto +3° C</option>
-  <option value="Decongelato">Decongelato</option>
-</select>
-      <input type="date" id="scadenza" name="scadenza" required />
-      <button type="submit">Salva</button>
-      <button type="button" id="exportPdfBtn">Esporta PDF</button>
-    </form>
+    <section id="alimentiSection" class="section">
       <form id="foodForm">
-  <h2>Aggiungi Alimento</h2>
-  
-  <input type="date" id="data" required />
+        <h2>Aggiungi Alimento</h2>
 
-  <input type="text" id="prodotto" placeholder="Nome Prodotto" required />
+        <input type="date" id="data" required />
 
-  <input type="text" id="quantita" placeholder="es: 3pkt, 50grm" required />
+        <input
+          type="text"
+          id="prodotto"
+          placeholder="Nome Prodotto"
+          required
+          autocomplete="off"
+        />
 
-  <select id="processo" name="processo" required>
-    <option value="">-- Seleziona processo --</option>
-    <option value="Abbattuto -18° C">Abbattuto -18° C</option>
-    <option value="Abbattuto +3° C">Abbattuto +3° C</option>
-    <option value="Decongelato">Decongelato</option>
-  </select>
+        <input
+          type="text"
+          id="quantita"
+          placeholder="es: 3pkt, 50grm"
+          required
+          autocomplete="off"
+        />
 
-  <input type="date" id="scadenza" required />
+        <select id="processo" required>
+          <option value="">-- Seleziona processo --</option>
+          <option value="Abbattuto -18° C">Abbattuto -18° C</option>
+          <option value="Abbattuto +3° C">Abbattuto +3° C</option>
+          <option value="Decongelato">Decongelato</option>
+        </select>
 
-  <div class="sottovuoto-group">
-    <label>Sottovuoto:</label>
-    <label><input type="radio" name="sottovuoto" value="Sì" required /> Sì</label>
-    <label><input type="radio" name="sottovuoto" value="No" required /> No</label>
+        <input type="date" id="scadenza" required />
+
+        <div class="sottovuoto-group">
+          <label>Sottovuoto:</label>
+          <label
+            ><input type="radio" name="sottovuoto" value="Sì" required /> Sì</label
+          >
+          <label
+            ><input type="radio" name="sottovuoto" value="No" required /> No</label
+          >
+        </div>
+
+        <button type="submit">Salva</button>
+      </form>
+
+      <h2>Elenco Alimenti</h2>
+      <div class="table-controls">
+        <button id="exportPdfBtn">Esporta PDF</button>
+        <label for="sortSelect">Ordina per:</label>
+        <select id="sortSelect">
+          <option value="data">Data</option>
+          <option value="scadenza">Scadenza</option>
+          <option value="prodotto">Nome</option>
+          <option value="processo">Processo</option>
+        </select>
+      </div>
+
+      <table id="foodTable">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Prodotto</th>
+            <th>Quantità</th>
+            <th>Processo</th>
+            <th>Sottovuoto</th>
+            <th>Scadenza</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="temperatureSection" class="section hidden">
+      <h2>Registro Controllo delle Temperature</h2>
+      <div class="temperature-controls">
+        <label for="areaSelect">Seleziona Area:</label>
+        <select id="areaSelect">
+          <option value="">-- Seleziona --</option>
+          <option value="sala">Sala</option>
+          <option value="cucina">Cucina</option>
+        </select>
+      </div>
+
+      <div id="salaTable" class="temp-table hidden">
+        <div class="sheet-header">
+          <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
+          <div>
+            Mese: <span id="meseSala"></span> / Anno:
+            <span id="annoSala"></span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Giorno</th>
+              <th>Ora</th>
+              <th>Operatore</th>
+              <th>Banco</th>
+              <th>Bindi</th>
+              <th>Vetrinetta</th>
+              <th>Levissima</th>
+              <th>Cantina Vini</th>
+            </tr>
+          </thead>
+          <tbody id="salaTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="cucinaTable" class="temp-table hidden">
+        <div class="sheet-header">
+          <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
+          <div>
+            Mese: <span id="meseCucina"></span> / Anno:
+            <span id="annoCucina"></span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Giorno</th>
+              <th>Ora</th>
+              <th>Operatore</th>
+              <th>Cucina</th>
+              <th>Cucina 2</th>
+              <th>Pizzeria</th>
+              <th>Tavolo R1</th>
+              <th>Tavolo R2</th>
+              <th>Cella +</th>
+              <th>Cella -</th>
+            </tr>
+          </thead>
+          <tbody id="cucinaTableBody"></tbody>
+        </table>
+      </div>
+
+      <button id="exportTempPdfBtn" class="hidden">Esporta Temperature PDF</button>
+    </section>
   </div>
 
-  <button type="submit">Salva</button>
-</form>
-
-    <table id="foodTable" aria-label="Tabella alimenti">
-      <thead>
-        <tr>
-          <th><label for="sortSelect">Ordina per:</label></th>
-          <th colspan="5">
-            <select id="sortSelect" aria-label="Seleziona ordinamento">
-              <option value="data">Data</option>
-              <option value="scadenza">Scadenza</option>
-              <option value="prodotto">Prodotto</option>
-              <option value="processo">Processo</option>
-            </select>
-          </th>
-        </tr>
-        <tr>
-          <th>Data</th>
-          <th>Prodotto</th>
-          <th>Quantità</th>
-          <th>Processo</th>
-          <th>Scadenza</th>
-          <th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
-
-  <!-- TEMPERATURE SECTION -->
-  <section id="temperatureSection" class="hidden">
-    <div class="temperature-controls">
-      <label for="areaSelect">Area:</label>
-      <select id="areaSelect" aria-label="Seleziona area">
-        <option value="sala">Sala</option>
-        <option value="cucina">Cucina</option>
-      </select>
-      <button id="exportTempPdfBtn">Esporta PDF Temperature</button>
-    </div>
-
-    <div id="salaTable" class="temp-table">
-      <div class="sheet-header">
-        <span>REGISTRO CONTROLLO DELLE TEMPERATURE - SALA</span>
-        <span>
-          Mese: <input type="month" id="meseSala" aria-label="Seleziona mese sala" />
-        </span>
-      </div>
-      <table aria-label="Tabella temperature sala">
-        <thead>
-          <tr>
-            <th>Giorno</th>
-            <th>Ora</th>
-            <th>Operatore</th>
-            <th>Banco</th>
-            <th>Bindi</th>
-            <th>Freddo</th>
-            <th>Caldo</th>
-          </tr>
-        </thead>
-        <tbody id="salaTableBody"></tbody>
-      </table>
-    </div>
-
-    <div id="cucinaTable" class="temp-table hidden">
-      <div class="sheet-header">
-        <span>REGISTRO CONTROLLO DELLE TEMPERATURE - CUCINA</span>
-        <span>
-          Mese: <input type="month" id="meseCucina" aria-label="Seleziona mese cucina" />
-        </span>
-      </div>
-      <table aria-label="Tabella temperature cucina">
-        <thead>
-          <tr>
-            <th>Giorno</th>
-            <th>Ora</th>
-            <th>Operatore</th>
-            <th>Cucina</th>
-            <th>Cucina 2</th>
-            <th>Freddo</th>
-            <th>Caldo</th>
-          </tr>
-        </thead>
-        <tbody id="cucinaTableBody"></tbody>
-      </table>
-    </div>
-  </section>
-
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
