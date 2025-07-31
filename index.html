@@ -4,117 +4,100 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Food & Temperature Tracker</title>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- jsPDF and AutoTable for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 </head>
 <body>
   <header>
     <h1>Food & Temperature Tracker</h1>
-    <button id="logoutBtn">Logout</button>
+    <button id="logoutBtn" class="hidden">Logout</button>
+    <button id="themeToggleBtn" title="Toggle Light/Dark Theme">🌗</button>
   </header>
 
-  <section id="foodSection">
-    <h2>Elenco Alimenti</h2>
+  <nav>
+    <button id="showAlimentiBtn" class="active">Alimenti</button>
+    <button id="showTemperatureBtn">Temperature</button>
+  </nav>
 
-    <form id="foodForm">
-      <div>
-        <label for="nomeAlimento">Nome</label><br />
-        <input type="text" id="nomeAlimento" name="nomeAlimento" required />
+  <main>
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" />
+        <input type="password" id="password" placeholder="Password" />
+        <button id="loginBtn">Login</button>
+        <p id="loginError" class="error"></p>
       </div>
-      <div>
-        <label for="dataPreparazione">Data Preparazione</label><br />
-        <input type="date" id="dataPreparazione" name="dataPreparazione" required />
-      </div>
-      <div>
-        <label for="dataScadenza">Data Scadenza</label><br />
-        <input type="date" id="dataScadenza" name="dataScadenza" required />
-      </div>
-      <div>
-        <label for="quantita">Quantità</label><br />
-        <input type="number" id="quantita" name="quantita" min="1" required />
-      </div>
-      <div>
+    </div>
+
+    <!-- ALIMENTI SECTION -->
+    <section id="alimentiSection">
+      <form id="alimentiForm">
+        <input type="text" id="nomeInput" placeholder="Nome Prodotto" required />
+        <input type="date" id="dataPreparazioneInput" required />
+        <input type="date" id="dataScadenzaInput" required />
         <button type="submit">Aggiungi</button>
+      </form>
+
+      <button id="exportAlimentiBtn">Esporta PDF</button>
+
+      <table id="alimentiTable">
+        <thead>
+          <tr>
+            <th data-sort="nome">Nome</th>
+            <th data-sort="dataPreparazione">Data Preparazione</th>
+            <th data-sort="dataScadenza">Data Scadenza</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- TEMPERATURE SECTION -->
+    <section id="temperatureSection" class="hidden">
+      <nav class="temp-nav">
+        <button id="showSalaBtn" class="active">Sala</button>
+        <button id="showCucinaBtn">Cucina</button>
+      </nav>
+
+      <div id="salaContainer">
+        <h2>Registro Controllo delle Temperature - Sala</h2>
+        <button id="exportSalaBtn">Esporta PDF Sala</button>
+        <table id="salaTable">
+          <thead>
+            <tr>
+              <th>Giorno</th><th>Ora</th><th>Operatore</th><th>Banco</th><th>Bindi</th><th>Vetrinetta</th><th>Levissima</th><th>Cantina Vini</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
-    </form>
 
-    <div id="sortSection">
-      <label for="sortSelect">Ordina per:</label>
-      <select id="sortSelect">
-        <option value="expiry">Data Scadenza</option>
-        <option value="preparation">Data Preparazione</option>
-        <option value="name">Nome</option>
-      </select>
-    </div>
-
-    <table id="foodTable">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Data Preparazione</th>
-          <th>Data Scadenza</th>
-          <th>Quantità</th>
-          <th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Food items here -->
-      </tbody>
-    </table>
-  </section>
-
-  <section id="temperatureSection">
-    <h2>Registro Temperature</h2>
-    <div id="temperatureAreaSelect">
-      <label><input type="radio" name="tempArea" value="sala" checked /> Sala</label>
-      <label><input type="radio" name="tempArea" value="cucina" /> Cucina</label>
-    </div>
-
-    <div id="salaTableContainer">
-      <span>Mese: <span id="meseSala"></span> / Anno: <span id="annoSala"></span></span>
-      <table id="salaTable">
-        <thead>
-          <tr>
-            <th>Giorno</th>
-            <th>Ora</th>
-            <th>Operatore</th>
-            <th>Banco</th>
-            <th>Bindi</th>
-            <th>Vetrinetta</th>
-            <th>Levissima</th>
-            <th>Cantina Vini</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button class="exportBtn" id="exportSalaBtn">Esporta PDF Sala</button>
-    </div>
-
-    <div id="cucinaTableContainer" class="hidden">
-      <span>Mese: <span id="meseCucina"></span> / Anno: <span id="annoCucina"></span></span>
-      <table id="cucinaTable">
-        <thead>
-          <tr>
-            <th>Giorno</th>
-            <th>Ora</th>
-            <th>Operatore</th>
-            <th>Cucina</th>
-            <th>Cucina 2</th>
-            <th>Pizzeria</th>
-            <th>Tavolo R1</th>
-            <th>Tavolo R2</th>
-            <th>Cella +</th>
-            <th>Cella -</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button class="exportBtn" id="exportCucinaBtn">Esporta PDF Cucina</button>
-    </div>
-
-  </section>
+      <div id="cucinaContainer" class="hidden">
+        <h2>Registro Controllo delle Temperature - Cucina</h2>
+        <button id="exportCucinaBtn">Esporta PDF Cucina</button>
+        <table id="cucinaTable">
+          <thead>
+            <tr>
+              <th>Giorno</th><th>Ora</th><th>Operatore</th><th>Cucina</th><th>Cucina 2</th><th>Pizzeria</th><th>Tavolo R1</th><th>Tavolo R2</th><th>Cella +</th><th>Cella -</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
   <script src="app.js"></script>
 </body>
