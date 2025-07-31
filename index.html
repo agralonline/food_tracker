@@ -2,127 +2,115 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Registro Controllo Temperature</title>
-  <style>
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #444;
-      padding: 6px 8px;
-      text-align: center;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-    }
-    thead {
-      background: linear-gradient(90deg, #4a90e2, #357ABD);
-      color: white;
-      font-weight: bold;
-    }
-    input[type="text"], input[type="time"], select {
-      width: 100%;
-      box-sizing: border-box;
-      font-size: 14px;
-      padding: 2px 4px;
-    }
-    .controls {
-      margin-bottom: 10px;
-      font-family: Arial, sans-serif;
-    }
-    button {
-      margin-right: 5px;
-      padding: 6px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    label {
-      margin-right: 5px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alimenti e Temperature</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script defer src="app.js"></script>
 </head>
 <body>
+  <header>
+    <h1>Registro Alimenti e Temperature</h1>
+    <nav>
+      <button id="btnAlimenti">Alimenti</button>
+      <button id="btnTemperature">Temperature</button>
+    </nav>
+  </header>
 
-  <h1>REGISTRO CONTROLLO DELLE TEMPERATURE</h1>
+  <section id="alimentiSection">
+    <h2>Alimenti</h2>
+    <form id="foodForm">
+      <input type="date" id="foodData" required>
+      <input type="text" id="foodNome" placeholder="Nome" required>
+      <input type="number" id="foodQuantita" placeholder="Quantità" required>
+      <input type="text" id="foodProcesso" placeholder="Processo" required>
+      <input type="date" id="foodScadenza" required>
+      <button type="submit">Aggiungi</button>
+      <button type="button" id="btnCancelEditFood" style="display:none">Annulla</button>
+    </form>
+    <table id="foodTable">
+      <thead>
+        <tr>
+          <th>Data</th><th>Nome</th><th>Quantità</th><th>Processo</th><th>Scadenza</th><th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
 
-  <div class="controls">
-    <label for="meseSelect">Mese:</label>
-    <select id="meseSelect">
-      <option value="1">Gennaio</option>
-      <option value="2">Febbraio</option>
-      <option value="3">Marzo</option>
-      <option value="4">Aprile</option>
-      <option value="5">Maggio</option>
-      <option value="6">Giugno</option>
-      <option value="7">Luglio</option>
-      <option value="8">Agosto</option>
-      <option value="9">Settembre</option>
-      <option value="10">Ottobre</option>
-      <option value="11">Novembre</option>
-      <option value="12">Dicembre</option>
-    </select>
+  <section id="temperatureSection" style="display:none">
+    <div class="tabs">
+      <button onclick="toggleTempTab('sala')">Sala</button>
+      <button onclick="toggleTempTab('cucina')">Cucina</button>
+    </div>
 
-    <label for="annoInput">Anno:</label>
-    <input type="number" id="annoInput" min="2000" max="2100" value="2025" />
+    <div id="salaTab">
+      <h2>Temperature Sala</h2>
+      <input type="number" id="salaMese" placeholder="Mese" min="1" max="12">
+      <input type="number" id="salaAnno" placeholder="Anno">
+      <button onclick="loadTemperatureTable('sala', salaMese.value, salaAnno.value, true)">Carica</button>
+      <button onclick="saveTemperatureTable('sala', salaMese.value, salaAnno.value, true)">Salva</button>
+      <button id="btnExportSala">Esporta PDF</button>
+      <table id="salaTable">
+        <thead>
+          <tr>
+            <th>Giorno</th><th>Ora</th><th>Operatore</th>
+            <th>Banco</th><th>Bindi</th><th>Vetrinetta</th><th>Levissima</th><th>Cantina Vini</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-    <button id="showSalaBtn">Temperatura Sala</button>
-    <button id="showCucinaBtn">Temperatura Cucina</button>
-    <button id="exportTempPdfBtn">Esporta PDF</button>
-  </div>
+    <div id="cucinaTab" style="display:none">
+      <h2>Temperature Cucina</h2>
+      <input type="number" id="cucinaMese" placeholder="Mese" min="1" max="12">
+      <input type="number" id="cucinaAnno" placeholder="Anno">
+      <button onclick="loadTemperatureTable('cucina', cucinaMese.value, cucinaAnno.value, false)">Carica</button>
+      <button onclick="saveTemperatureTable('cucina', cucinaMese.value, cucinaAnno.value, false)">Salva</button>
+      <button id="btnExportCucina">Esporta PDF</button>
+      <table id="cucinaTable">
+        <thead>
+          <tr>
+            <th>Giorno</th><th>Ora</th><th>Operatore</th>
+            <th>Cucina</th><th>Cucina 2</th><th>Pizzeria</th><th>Tavolo R1</th><th>Tavolo R2</th><th>Cella +</th><th>Cella -</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-  <!-- Sala Table -->
-  <table id="salaTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>Giorno</th>
-        <th>Ora</th>
-        <th>Operatore</th>
-        <th>Banco</th>
-        <th>Bindi</th>
-        <th>Vetrinetta</th>
-        <th>Levissima</th>
-        <th>Cantina Vini</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Rows auto-generated by JS -->
-    </tbody>
-  </table>
+  <script>
+    const btnAlimenti = document.getElementById('btnAlimenti');
+    const btnTemperature = document.getElementById('btnTemperature');
+    const alimentiSection = document.getElementById('alimentiSection');
+    const temperatureSection = document.getElementById('temperatureSection');
+    const salaTab = document.getElementById('salaTab');
+    const cucinaTab = document.getElementById('cucinaTab');
 
-  <!-- Cucina Table -->
-  <table id="cucinaTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>Giorno</th>
-        <th>Ora</th>
-        <th>Operatore</th>
-        <th>Cucina</th>
-        <th>Cucina 2</th>
-        <th>Frigo</th>
-        <th>Congelatore</th>
-        <th>Dispensa</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Rows auto-generated by JS -->
-    </tbody>
-  </table>
+    btnAlimenti.onclick = () => {
+      alimentiSection.style.display = 'block';
+      temperatureSection.style.display = 'none';
+    };
 
-  <!-- Datalist for Operatore -->
-  <datalist id="operatoriList">
-    <!-- Populated dynamically by JS -->
-  </datalist>
+    btnTemperature.onclick = () => {
+      alimentiSection.style.display = 'none';
+      temperatureSection.style.display = 'block';
+    };
 
-  <!-- Firebase & jsPDF scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
-  <!-- Your Firebase initialization and the JS code I shared -->
-  <script src="your-temperature-app.js"></script>
-
+    function toggleTempTab(tab) {
+      if(tab === 'sala') {
+        salaTab.style.display = 'block';
+        cucinaTab.style.display = 'none';
+      } else {
+        salaTab.style.display = 'none';
+        cucinaTab.style.display = 'block';
+      }
+    }
+  </script>
 </body>
 </html>
