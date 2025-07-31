@@ -1,176 +1,378 @@
-/* Basic reset */
+/* Reset & base */
 * {
   box-sizing: border-box;
 }
 body {
-  font-family: Arial, sans-serif;
-  margin: 0; padding: 0;
-  background: #fafafa;
-  color: #333;
-}
-header {
-  background: linear-gradient(90deg, #f7941d, #fbd72b);
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
   color: #222;
-  padding: 1rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 10px 20px 40px;
+}
+
+/* Header */
+header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  margin-bottom: 20px;
 }
 header h1 {
-  margin: 0;
+  margin-bottom: 10px;
   font-weight: 700;
+  font-size: 2rem;
 }
-nav button {
-  background: white;
+.top-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.top-controls button {
+  background: #4a90e2;
   border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  margin-left: 0.5rem;
-  cursor: pointer;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
   font-weight: 600;
-  transition: background-color 0.3s ease;
+  cursor: pointer;
+  transition: background 0.3s;
 }
-nav button:hover {
-  background: #fbd72b;
+.top-controls button:hover {
+  background: #357abd;
 }
-main {
-  padding: 1rem 2rem;
-  max-width: 1000px;
-  margin: auto;
+.top-controls button.active {
+  background: #285f8f;
+}
+
+/* Theme toggle switch */
+.theme-toggle {
+  margin-left: auto;
+  user-select: none;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 26px;
+  transition: .4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+input:checked + .slider {
+  background-color: #4a90e2;
+}
+input:checked + .slider:before {
+  transform: translateX(24px);
 }
 
 /* Sections */
-section {
-  margin-top: 1rem;
+.section {
+  display: block;
+}
+.hidden {
+  display: none !important;
 }
 
-/* Form styles */
-form div {
-  margin-bottom: 0.75rem;
+/* Form inputs */
+form {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgb(0 0 0 / 0.1);
 }
-form label {
-  width: 140px;
-  font-weight: 600;
-}
-form input[type="text"],
 form input[type="date"],
+form input[type="text"],
 form select {
-  flex: 1;
-  padding: 0.4rem 0.6rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  flex: 1 1 150px;
+  padding: 8px 12px;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: border-color 0.2s;
 }
-form input[type="text"]::placeholder {
-  color: #aaa;
-  font-style: italic;
-}
-form input[type="radio"] {
-  margin-left: 0.5rem;
-  margin-right: 0.25rem;
+form input[type="date"]:focus,
+form input[type="text"]:focus,
+form select:focus {
+  border-color: #4a90e2;
+  outline: none;
 }
 form button {
-  padding: 0.6rem 1.2rem;
-  font-weight: 700;
-  background: #f7941d;
-  border: none;
-  border-radius: 4px;
+  padding: 10px 25px;
+  background: #4a90e2;
   color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.3s;
 }
 form button:hover {
-  background: #e17a0d;
+  background: #357abd;
 }
 
 /* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 0.9rem;
+  font-size: 14px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 6px rgb(0 0 0 / 0.1);
 }
-thead {
-  background: #f7941d;
+thead tr {
+  background: #4a90e2;
   color: white;
-}
-thead th {
-  padding: 0.5rem;
-  text-align: left;
-  border: 1px solid #ddd;
-}
-tbody td {
-  border: 1px solid #ddd;
-  padding: 0.4rem 0.6rem;
-}
-
-/* Actions */
-td button {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.8rem;
-  margin-right: 0.25rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-td button.edit-btn {
-  background: #007bff;
-  color: white;
-}
-td button.delete-btn {
-  background: #dc3545;
-  color: white;
-}
-
-/* Hidden utility */
-.hidden {
-  display: none !important;
-}
-
-/* Temperature Section */
-.temp-controls {
-  margin-bottom: 1rem;
   font-weight: 600;
 }
+th, td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+tbody tr:hover {
+  background: #f9f9f9;
+}
+
+/* Buttons in table */
+.table-controls {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.table-controls button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-size: 14px;
+}
+.table-controls button:hover {
+  background: #357abd;
+}
+.table-controls select {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1.5px solid #ccc;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Action buttons inside table */
+.action-btn {
+  background: #e74c3c;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.3s;
+}
+.action-btn:hover {
+  background: #c0392b;
+}
+
+/* Temperature section */
+
+.temperature-controls {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.temperature-controls label {
+  font-weight: 600;
+}
+.temperature-controls select {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1.5px solid #ccc;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Temperature tables styling */
 .temp-table {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgb(0 0 0 / 0.1);
+  margin-bottom: 20px;
+}
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  user-select: none;
+}
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+/* Fix wide cucina table scrolling */
+#cucinaTable .table-wrapper {
+  max-width: 100%;
   overflow-x: auto;
 }
 
-/* Sheet header */
-.sheet-header {
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #444;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 0.5rem;
+/* Inputs inside temperature tables */
+.temp-table table input[type="text"],
+.temp-table table input[type="time"] {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 13px;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.temp-table table input[type="text"]:focus,
+.temp-table table input[type="time"]:focus {
+  border-color: #4a90e2;
 }
 
-/* Temperature input cell wrapper with °C label */
-.temp-input-wrapper {
-  position: relative;
-  display: inline-flex;
+/* °C label next to input */
+.temp-cell-wrapper {
+  display: flex;
   align-items: center;
   gap: 4px;
 }
-
-.temp-input-wrapper input[type="text"],
-.temp-input-wrapper input[type="number"] {
-  width: 50px;
-  padding-right: 18px; /* space for °C label */
-  font-size: 0.9rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: center;
+.temp-cell-wrapper input {
+  flex: 1;
+}
+.temp-cell-wrapper .deg-label {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #666;
+  user-select: none;
 }
 
-.temp-input-wrapper .deg-label {
-  font-size: 0.8rem;
-  color: #555;
-  user-select: none;
-  pointer-events: none;
-  white-space: nowrap;
-  margin-left: 2px;
+/* Hide scrollbar for webkit */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f0f2f5;
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #4a90e2;
+  border-radius: 4px;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .top-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .theme-toggle {
+    margin-left: 0;
+  }
+  form {
+    flex-direction: column;
+  }
+  form input, form select, form button {
+    width: 100%;
+  }
+}
+
+/* Dark theme */
+body.dark {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+body.dark header h1 {
+  color: #90caf9;
+}
+body.dark .top-controls button {
+  background: #2e3c54;
+  color: #e0e0e0;
+}
+body.dark .top-controls button.active {
+  background: #4a90e2;
+  color: white;
+}
+body.dark .top-controls button:hover {
+  background: #5a86d1;
+}
+body.dark form,
+body.dark table {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+body.dark th {
+  background: #284e8e;
+}
+body.dark input,
+body.dark select {
+  background: #2e3c54;
+  color: #e0e0e0;
+  border-color: #4a90e2;
+}
+body.dark input:focus,
+body.dark select:focus {
+  border-color: #90caf9;
+}
+body.dark .table-controls button,
+body.dark .table-controls select {
+  background: #2e3c54;
+  color: #e0e0e0;
+  border: none;
+}
+body.dark .table-controls button:hover {
+  background: #4a90e2;
+}
+body.dark .action-btn {
+  background: #d9534f;
+}
+body.dark .action-btn:hover {
+  background: #c9302c;
 }
