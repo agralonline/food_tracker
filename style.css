@@ -1,71 +1,72 @@
 body {
   font-family: sans-serif;
   margin: 0;
-  padding: 0;
-  background: #f5f7fa;
-  color: #333;
+  padding: 1rem;
+  background: #f7f9fc;
 }
 
 header {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  padding: 1rem;
-  background: linear-gradient(to right, #4facfe, #00f2fe);
+  margin-bottom: 1rem;
 }
 
 button {
   padding: 0.5rem 1rem;
-  border: none;
   background: #007bff;
   color: white;
-  border-radius: 6px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 0.3rem;
+  text-align: center;
 }
 
 .hidden {
   display: none;
 }
 
-form, table {
-  margin: 1rem auto;
-  max-width: 95%;
-  background: white;
-  padding: 1rem;
-  border-radius: 10px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-}
-
-form input, form select {
-  margin: 0.5rem;
-  padding: 0.5rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  text-align: center;
-}
-
 .temp-cell {
   position: relative;
 }
 
-.temp-cell input {
+.temp-input {
   width: 60px;
-  padding-right: 18px;
+  padding-right: 20px;
 }
 
-.deg {
+.temp-cell .deg {
   position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.8rem;
+  right: 4px;
+  top: 4px;
+  font-size: 0.8em;
   color: #555;
 }
