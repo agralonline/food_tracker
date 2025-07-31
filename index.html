@@ -3,177 +3,330 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Food Tracker with Processo and Sottovuoto</title>
+  <title>Food Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      background: #f5f5f5;
-      color: #333;
+      margin: 20px;
+      background: #f9f9f9;
+      color: #222;
     }
-    fieldset {
+    form label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    form label select,
+    form label input {
+      margin-left: 8px;
+      padding: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
       border: 1px solid #ccc;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      background: white;
+      padding: 8px;
+      text-align: left;
     }
-    legend {
-      font-weight: bold;
+    tr.expired {
+      background-color: #fdd;
     }
-    label {
-      margin-right: 1rem;
-      display: inline-block;
-      margin-top: 0.5rem;
-    }
-    select, button {
-      margin-top: 0.5rem;
-      padding: 0.3rem 0.5rem;
-      font-size: 1rem;
+    tr.expiring {
+      background-color: #ffd;
     }
     button {
+      margin-right: 5px;
       cursor: pointer;
-      background: #007bff;
-      border: none;
-      color: white;
-      border-radius: 3px;
-      transition: background-color 0.3s ease;
     }
-    button:hover {
-      background: #0056b3;
-    }
-    #scroldownOptions, #sottovuotoOptions {
-      margin-top: 0.5rem;
-    }
-    #itemsList {
-      margin-top: 2rem;
-      background: white;
-      padding: 1rem;
-      border-radius: 5px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-    #itemsList ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    #itemsList li {
-      background: #e3e3e3;
-      margin-bottom: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 3px;
+    #themeToggle {
+      margin-bottom: 20px;
+      cursor: pointer;
     }
   </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
 
-  <h1>Food Tracker</h1>
+  <button id="themeToggle">Toggle Dark Mode</button>
 
-  <form id="foodForm" aria-label="Aggiungi alimento">
-
-    <label for="nome">Nome:</label><br />
-    <input type="text" id="nome" name="nome" required /><br /><br />
-
-    <fieldset>
-      <legend>Processo</legend>
-
-      <label>
-        <input type="radio" name="processoTipo" value="scroldown" required />
-        Scroldown
+  <section id="alimentiSection">
+    <form id="foodForm">
+      <label>Data:
+        <input type="date" name="data" required />
       </label>
 
-      <label>
-        <input type="radio" name="processoTipo" value="sottovuoto" />
-        Sottovuoto
-      </label>
-
-      <div id="scroldownOptions" style="display:none;">
-        <label for="scroldownSelect">Seleziona opzione Scroldown:</label><br />
-        <select name="scroldownSelect" id="scroldownSelect">
-          <option value="">-- Seleziona --</option>
-          <option value="Abbatutto -18° C">Abbatutto -18° C</option>
-          <option value="Abbatutto +3° C">Abbatutto +3° C</option>
-          <option value="Decongelato">Decongelato</option>
+      <label>Prodotto:
+        <select name="prodotto" required>
+          <option value="" disabled selected>Seleziona prodotto</option>
+          <option value="Prodotto1">Prodotto1</option>
+          <option value="Prodotto2">Prodotto2</option>
+          <option value="Prodotto3">Prodotto3</option>
         </select>
-      </div>
+      </label>
 
-      <div id="sottovuotoOptions" style="display:none; margin-top:0.5rem;">
-        <label>Sottovuoto:</label><br />
-        <label><input type="radio" name="sottovuotoSelect" value="Yes" /> Sì</label>
-        <label><input type="radio" name="sottovuotoSelect" value="No" /> No</label>
-      </div>
-    </fieldset>
+      <label>Quantità:
+        <input type="number" name="quantita" min="1" />
+      </label>
 
-    <button type="submit">Aggiungi</button>
-  </form>
+      <label>Processo:
+        <select name="processo" required>
+          <option value="" disabled selected>Seleziona processo</option>
+          <option value="Processo1">Processo1</option>
+          <option value="Processo2">Processo2</option>
+          <option value="Processo3">Processo3</option>
+        </select>
+      </label>
 
-  <section id="itemsList" aria-live="polite" aria-atomic="true">
-    <h2>Lista Alimenti</h2>
-    <ul id="list"></ul>
+      <label>Scadenza:
+        <input type="date" name="scadenza" required />
+      </label>
+
+      <label>Sottovuoto:
+        <select name="sottovuoto" required>
+          <option value="" disabled selected>Seleziona</option>
+          <option value="Si">Si</option>
+          <option value="No">No</option>
+        </select>
+      </label>
+
+      <button type="submit">Aggiungi</button>
+    </form>
+
+    <button id="exportAlimentiBtn">Esporta PDF</button>
+
+    <table id="foodTable">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Prodotto</th>
+          <th>Quantità</th>
+          <th>Processo</th>
+          <th>Scadenza</th>
+          <th>Sottovuoto</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Items will appear here -->
+      </tbody>
+    </table>
   </section>
 
   <script>
-    const processoRadios = document.querySelectorAll('input[name="processoTipo"]');
-    const scroldownDiv = document.getElementById('scroldownOptions');
-    const sottovuotoDiv = document.getElementById('sottovuotoOptions');
-    const form = document.getElementById('foodForm');
-    const list = document.getElementById('list');
+    // Your Firebase config - REPLACE with your own
+    const firebaseConfig = {
+      apiKey: "AIzaSyAVmsiSzszfgCEk5qqnX57pGigoQtUafAU",
+      authDomain: "food-tracker-fca47.firebaseapp.com",
+      projectId: "food-tracker-fca47",
+      storageBucket: "food-tracker-fca47.firebasestorage.app",
+      messagingSenderId: "769456892190",
+      appId: "1:769456892190:web:9c2a2e7d676f1f2d85010f"
+    };
 
-    processoRadios.forEach(radio => {
-      radio.addEventListener('change', () => {
-        if (radio.value === 'scroldown' && radio.checked) {
-          scroldownDiv.style.display = 'block';
-          sottovuotoDiv.style.display = 'none';
-        } else if (radio.value === 'sottovuoto' && radio.checked) {
-          sottovuotoDiv.style.display = 'block';
-          scroldownDiv.style.display = 'none';
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // DOM Elements
+    const foodForm = document.getElementById('foodForm');
+    const foodTableBody = document.querySelector('#foodTable tbody');
+    const exportAlimentiBtn = document.getElementById('exportAlimentiBtn');
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    let editingId = null;
+
+    function formatDate(dateStr) {
+      if(!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('it-IT');
+    }
+
+    function resetForm() {
+      foodForm.reset();
+      editingId = null;
+      foodForm.querySelector('button[type=submit]').textContent = 'Aggiungi';
+      foodForm.prodotto.selectedIndex = 0;
+      foodForm.processo.selectedIndex = 0;
+      foodForm.sottovuoto.selectedIndex = 0;
+    }
+
+    function renderItems(items) {
+      const now = new Date();
+      const msInDay = 24 * 60 * 60 * 1000;
+
+      // Sort: expired first, then expiring soon, then fresh
+      items.sort((a, b) => {
+        const aExp = new Date(a.scadenza);
+        const bExp = new Date(b.scadenza);
+        const aDiff = aExp - now;
+        const bDiff = bExp - now;
+
+        function priority(diff) {
+          if (diff < 0) return 0;       // expired highest priority
+          else if (diff <= msInDay) return 1; // expiring soon
+          return 2;                    // fresh
+        }
+        const prioA = priority(aDiff);
+        const prioB = priority(bDiff);
+
+        if (prioA !== prioB) return prioA - prioB;
+        return aExp - bExp;
+      });
+
+      foodTableBody.innerHTML = '';
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        const expiry = new Date(item.scadenza);
+        const diff = expiry - now;
+
+        if (diff < 0) {
+          tr.classList.add('expired');
+        } else if (diff <= msInDay) {
+          tr.classList.add('expiring');
+        }
+
+        tr.innerHTML = `
+          <td>${formatDate(item.data)}</td>
+          <td>${item.prodotto}</td>
+          <td>${item.quantita || ''}</td>
+          <td>${item.processo || ''}</td>
+          <td>${formatDate(item.scadenza)}</td>
+          <td>${item.sottovuoto || ''}</td>
+          <td>
+            <button class="edit-btn" data-id="${item.id}">Modifica</button>
+            <button class="delete-btn" data-id="${item.id}">Elimina</button>
+          </td>
+        `;
+        foodTableBody.appendChild(tr);
+      });
+
+      // Add event listeners for edit and delete buttons
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.onclick = () => startEdit(btn.dataset.id);
+      });
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = () => {
+          if (confirm('Sei sicuro di voler eliminare questo elemento?')) {
+            db.collection('items').doc(btn.dataset.id).delete();
+          }
+        };
+      });
+    }
+
+    function startEdit(id) {
+      db.collection('items').doc(id).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          editingId = id;
+          foodForm.data.value = data.data;
+          foodForm.prodotto.value = data.prodotto;
+          foodForm.quantita.value = data.quantita || '';
+          foodForm.processo.value = data.processo;
+          foodForm.scadenza.value = data.scadenza;
+          foodForm.sottovuoto.value = data.sottovuoto || '';
+          foodForm.querySelector('button[type=submit]').textContent = 'Salva';
         }
       });
+    }
+
+    // Load items and listen for changes realtime
+    db.collection('items').onSnapshot(snapshot => {
+      const items = [];
+      snapshot.forEach(doc => {
+        items.push({ id: doc.id, ...doc.data() });
+      });
+      renderItems(items);
     });
 
-    form.addEventListener('submit', e => {
+    // Handle form submit
+    foodForm.addEventListener('submit', e => {
       e.preventDefault();
+      const newItem = {
+        data: foodForm.data.value,
+        prodotto: foodForm.prodotto.value,
+        quantita: foodForm.quantita.value.trim(),
+        processo: foodForm.processo.value,
+        scadenza: foodForm.scadenza.value,
+        sottovuoto: foodForm.sottovuoto.value
+      };
 
-      const nome = form.nome.value.trim();
-      if (!nome) {
-        alert('Inserisci il nome dell\'alimento.');
-        return;
+      if (editingId) {
+        db.collection('items').doc(editingId).update(newItem).then(() => {
+          resetForm();
+        });
+      } else {
+        db.collection('items').add(newItem).then(() => {
+          resetForm();
+        });
       }
-
-      const selectedProcesso = document.querySelector('input[name="processoTipo"]:checked');
-      if (!selectedProcesso) {
-        alert('Seleziona un tipo di processo.');
-        return;
-      }
-
-      let processoDescrizione = '';
-
-      if (selectedProcesso.value === 'scroldown') {
-        const scroldownValue = document.getElementById('scroldownSelect').value;
-        if (!scroldownValue) {
-          alert('Seleziona un\'opzione Scroldown.');
-          return;
-        }
-        processoDescrizione = `Scroldown: ${scroldownValue}`;
-      } else if (selectedProcesso.value === 'sottovuoto') {
-        const sottovuotoValue = document.querySelector('input[name="sottovuotoSelect"]:checked');
-        if (!sottovuotoValue) {
-          alert('Seleziona Sì o No per Sottovuoto.');
-          return;
-        }
-        processoDescrizione = `Sottovuoto: ${sottovuotoValue.value}`;
-      }
-
-      // Add to list
-      const li = document.createElement('li');
-      li.textContent = `${nome} - ${processoDescrizione}`;
-      list.appendChild(li);
-
-      form.reset();
-      scroldownDiv.style.display = 'none';
-      sottovuotoDiv.style.display = 'none';
     });
+
+    // Export PDF for Alimenti (using jsPDF + autoTable)
+    exportAlimentiBtn.onclick = () => {
+      import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js').then(jsPDFModule => {
+        const { jsPDF } = jsPDFModule.jspdf;
+        import('https://cdn.jsdelivr.net/npm/jspdf-autotable').then(() => {
+          const doc = new jsPDF();
+          doc.text('Elenco Alimenti', 14, 20);
+
+          const rows = [];
+          foodTableBody.querySelectorAll('tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => {
+              if (td.textContent) row.push(td.textContent.trim());
+            });
+            if (row.length) rows.push(row);
+          });
+
+          doc.autoTable({
+            head: [['Data', 'Prodotto', 'Quantità', 'Processo', 'Scadenza', 'Sottovuoto']],
+            body: rows,
+            startY: 30
+          });
+
+          doc.save('elenco-alimenti.pdf');
+        });
+      });
+    };
+
+    // Dark mode toggle
+    themeToggle.onclick = () => {
+      body.classList.toggle('dark-mode');
+      // Save preference
+      if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+    };
+
+    // Load theme preference on start
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark-mode');
+    }
   </script>
 
-</body>
-</html>
+  <style>
+    /* Dark mode styling */
+    body.dark-mode {
+      background: #222;
+      color: #eee;
+    }
+    body.dark-mode table,
+    body.dark-mode th,
+    body.dark-mode td {
+      border-color: #555;
+    }
+    body.dark-mode tr.expired {
+      background-color: #660000;
+      color: #fff;
+    }
+    body.dark-mode tr.expiring {
+      background-color: #664400;
+      color: #fff;
+    }
