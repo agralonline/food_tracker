@@ -3,116 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Registro Alimenti e Temperature</title>
+  <title>Food & Temperature Tracker</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Registro Alimenti e Temperature</h1>
-      <div class="top-controls">
-        <button id="alimentiBtn">Alimenti</button>
-        <button id="temperatureBtn">Temperature</button>
-        <div class="theme-toggle">
-          <label class="switch">
-            <input type="checkbox" id="themeToggle" />
-            <span class="slider round"></span>
-          </label>
+  <header>
+    <h1>Food & Temperature Tracker</h1>
+    <nav>
+      <button id="btnAlimenti">Alimenti</button>
+      <button id="btnTemperature">Temperature</button>
+      <button id="logoutBtn" class="hidden">Logout</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ALIMENTI SECTION -->
+    <section id="alimentiSection">
+      <form id="alimentiForm">
+        <div>
+          <label for="nomeAlimento">Nome Alimento:</label>
+          <input id="nomeAlimento" type="text" required autocomplete="off" />
         </div>
-        <button id="logoutBtn">Logout</button>
-      </div>
-    </header>
-
-    <section id="alimentiSection" class="section">
-      <form id="foodForm">
-        <h2>Aggiungi Alimento</h2>
-
-        <input type="date" id="data" required />
-
-        <input
-          type="text"
-          id="prodotto"
-          placeholder="Nome Prodotto"
-          required
-          autocomplete="off"
-        />
-
-        <input
-          type="text"
-          id="quantita"
-          placeholder
-          required
-          autocomplete="off"
-        />
-
-        <select id="processo" required>
-          <option value="">-- Seleziona processo --</option>
-          <option value="Abbattuto -18° C">Abbattuto -18° C</option>
-          <option value="Abbattuto +3° C">Abbattuto +3° C</option>
-          <option value="Decongelato">Decongelato</option>
-        </select>
-
-        <input type="date" id="scadenza" required />
-
-        <div class="sottovuoto-group">
+        <div>
+          <label for="dataPreparazione">Data Preparazione:</label>
+          <input id="dataPreparazione" type="date" required />
+        </div>
+        <div>
+          <label for="dataScadenza">Data Scadenza:</label>
+          <input id="dataScadenza" type="date" required />
+        </div>
+        <div>
+          <label for="processoAlimento">Processo:</label>
+          <select id="processoAlimento" required>
+            <option value="" disabled selected>Seleziona processo</option>
+            <option value="Abbattuto -18° C">Abbattuto -18° C</option>
+            <option value="Abbattuto +3° C">Abbattuto +3° C</option>
+            <option value="Decongelato">Decongelato</option>
+          </select>
+        </div>
+        <div>
+          <label for="quantitaAlimento">Quantità:</label>
+          <input id="quantitaAlimento" type="text" placeholder="Quantità" required autocomplete="off" />
+        </div>
+        <div>
           <label>Sottovuoto:</label>
-          <label
-            ><input type="radio" name="sottovuoto" value="Sì" required /> Sì</label
-          >
-          <label
-            ><input type="radio" name="sottovuoto" value="No" required /> No</label
-          >
+          <label><input type="radio" name="sottovuoto" value="Si" required /> Si</label>
+          <label><input type="radio" name="sottovuoto" value="No" required /> No</label>
         </div>
-
-        <button type="submit">Salva</button>
+        <button type="submit" id="aggiungiAlimentoBtn">Aggiungi Alimento</button>
       </form>
 
-      <h2>Elenco Alimenti</h2>
-      <div class="table-controls">
-        <button id="exportPdfBtn">Esporta PDF</button>
-        <label for="sortSelect">Ordina per:</label>
-        <select id="sortSelect">
-          <option value="data">Data</option>
-          <option value="scadenza">Scadenza</option>
-          <option value="prodotto">Nome</option>
-          <option value="processo">Processo</option>
-        </select>
-      </div>
-
-      <table id="foodTable">
+      <table id="alimentiTable">
         <thead>
           <tr>
-            <th>Data</th>
-            <th>Prodotto</th>
-            <th>Quantità</th>
+            <th>Nome</th>
+            <th>Data Preparazione</th>
+            <th>Data Scadenza</th>
             <th>Processo</th>
+            <th>Quantità</th>
             <th>Sottovuoto</th>
-            <th>Scadenza</th>
             <th>Azioni</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="alimentiTableBody"></tbody>
       </table>
     </section>
 
-    <section id="temperatureSection" class="section hidden">
-      <h2>Registro Controllo delle Temperature</h2>
-      <div class="temperature-controls">
+    <!-- TEMPERATURE SECTION -->
+    <section id="temperatureSection" class="hidden">
+      <div class="temp-controls">
         <label for="areaSelect">Seleziona Area:</label>
         <select id="areaSelect">
-          <option value="">-- Seleziona --</option>
+          <option value="" disabled selected>Seleziona...</option>
           <option value="sala">Sala</option>
           <option value="cucina">Cucina</option>
         </select>
       </div>
 
+      <!-- SALA TABLE -->
       <div id="salaTable" class="temp-table hidden">
         <div class="sheet-header">
           <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
-          <div>
-            Mese: <span id="meseSala"></span> / Anno:
-            <span id="annoSala"></span>
-          </div>
+          <div>Mese: <span id="meseSala"></span> / Anno: <span id="annoSala"></span></div>
         </div>
         <table>
           <thead>
@@ -131,13 +103,11 @@
         </table>
       </div>
 
+      <!-- CUCINA TABLE -->
       <div id="cucinaTable" class="temp-table hidden">
         <div class="sheet-header">
           <div><strong>REGISTRO CONTROLLO DELLE TEMPERATURE</strong></div>
-          <div>
-            Mese: <span id="meseCucina"></span> / Anno:
-            <span id="annoCucina"></span>
-          </div>
+          <div>Mese: <span id="meseCucina"></span> / Anno: <span id="annoCucina"></span></div>
         </div>
         <table>
           <thead>
@@ -157,15 +127,9 @@
           <tbody id="cucinaTableBody"></tbody>
         </table>
       </div>
-
-      <button id="exportTempPdfBtn" class="hidden">Esporta Temperature PDF</button>
     </section>
-  </div>
+  </main>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
