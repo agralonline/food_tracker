@@ -14,7 +14,6 @@ const db = firebase.firestore();
 const foodForm = document.getElementById('foodForm');
 const foodTableBody = document.querySelector('#foodTable tbody');
 const exportAlimentiBtn = document.getElementById('exportAlimentiBtn');
-const sortBy = document.getElementById('sortBy');
 const cancelEditBtn = document.getElementById('cancelEditBtn');
 const prodottoList = document.getElementById('prodottoList');
 const themeToggle = document.getElementById('themeToggle');
@@ -66,6 +65,10 @@ function fillProductDatalist(items) {
   });
 }
 
+// Custom sort for Processo and Sottovuoto
+const processoOrder = ["Abbatutto -18° C", "Abbatutto +3° C", "Decongelato"];
+const sottovuotoOrder = ["Sì", "No"];
+
 function renderItems(items){
   // sort items based on sortField & sortAsc
   items.sort((a, b) => {
@@ -75,9 +78,30 @@ function renderItems(items){
       av = av || "9999-12-31"; // always last if missing
       bv = bv || "9999-12-31";
       if (av !== bv) return (sortAsc ? av.localeCompare(bv) : bv.localeCompare(av));
+    } else if(sortField === 'processo'){
+      let ai = processoOrder.indexOf(av);
+      let bi = processoOrder.indexOf(bv);
+      ai = ai === -1 ? processoOrder.length : ai;
+      bi = bi === -1 ? processoOrder.length : bi;
+      return sortAsc ? ai - bi : bi - ai;
+    } else if(sortField === 'sottovuoto'){
+      let ai = sottovuotoOrder.indexOf(av);
+      let bi = sottovuotoOrder.indexOf(bv);
+      ai = ai === -1 ? sottovuotoOrder.length : ai;
+      bi = bi === -1 ? sottovuotoOrder.length : bi;
+      return sortAsc ? ai - bi : bi - ai;
+    } else if(sortField === 'quantita') {
+      // Try to compare as numbers if both are numeric, else string
+      const numA = parseFloat(av.replace(/[^0-9.,]+/g, '').replace(',', '.'));
+      const numB = parseFloat(bv.replace(/[^0-9.,]+/g, '').replace(',', '.'));
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return sortAsc ? numA - numB : numB - numA;
+      } else {
+        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      }
     } else {
-      if (av.toLowerCase() !== bv.toLowerCase())
-        return (sortAsc ? av.toLowerCase().localeCompare(bv.toLowerCase()) : bv.toLowerCase().localeCompare(av.toLowerCase()));
+      // Default string sort
+      return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
     }
     return 0;
   });
@@ -118,6 +142,14 @@ function renderItems(items){
       if(confirm('Sei sicuro di voler eliminare questo elemento?')){
         db.collection('items').doc(btn.dataset.id).delete();
       }
+    }
+  });
+
+  // Update sort arrows
+  document.querySelectorAll('th[data-field]').forEach(th => {
+    th.querySelector('.sort-arrow').textContent = "";
+    if (th.dataset.field === sortField) {
+      th.querySelector('.sort-arrow').textContent = sortAsc ? "▲" : "▼";
     }
   });
 }
@@ -173,17 +205,18 @@ foodForm.addEventListener('submit', e => {
 
 cancelEditBtn.onclick = resetForm;
 
-// Sorting functionality
-sortBy.addEventListener('change', () => {
-  sortField = sortBy.value;
-  sortAsc = true;
-  renderItems(allItems);
-});
-
-// Reverse sort if same sort selected again
-sortBy.addEventListener('dblclick', () => {
-  sortAsc = !sortAsc;
-  renderItems(allItems);
+// Table header sorting logic
+document.querySelectorAll('th[data-field]').forEach(th => {
+  th.onclick = function() {
+    const field = th.dataset.field;
+    if (sortField === field) {
+      sortAsc = !sortAsc;
+    } else {
+      sortField = field;
+      sortAsc = true;
+    }
+    renderItems(allItems);
+  };
 });
 
 exportAlimentiBtn.onclick = () => {
