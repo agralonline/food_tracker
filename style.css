@@ -8,29 +8,33 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 .dark-mode {
-  background: #23243a;
-  color: #f5f5f5;
+  background: #181c26 !important;
+  color: #e3e3e3;
 }
 header {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  background: linear-gradient(90deg,#3282ff,#94eaff 80%);
+  background: linear-gradient(90deg,#232841,#3b445c 80%);
   color: white;
   padding: 0.7rem 1rem;
   min-height: 54px;
-  box-shadow: 0 2px 10px #0001;
+  box-shadow: 0 2px 10px #0002;
 }
 header button {
   background: none;
   border: none;
   font-size: 2rem;
   cursor: pointer;
-  color: #3282ff;
+  color: #232841;
   transition: color 0.3s;
 }
 .dark-mode header {
-  background: #222244;
+  background: #161924;
+  color: #e3e3e3;
+}
+.dark-mode header button {
+  color: #e3e3e3;
 }
 .main-heading {
   text-align: center;
@@ -39,10 +43,14 @@ header button {
   letter-spacing: 0.05em;
   margin-top: 1.2rem;
   margin-bottom: 0.3em;
-  background: linear-gradient(90deg, #3282ff 30%, #7e6fff 100%);
+  background: linear-gradient(90deg, #232841 30%, #4e527d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(1px 1px 6px #9cc3ff55);
+  filter: drop-shadow(1px 1px 6px #23284130);
+}
+.dark-mode .main-heading {
+  background: linear-gradient(90deg,#b1c6fc 10%,#41cdf7 100%);
+  filter: drop-shadow(1px 1px 7px #0c151e9c);
 }
 form {
   margin: 1.2em auto 0.6em;
@@ -58,8 +66,8 @@ form {
   align-items: center;
 }
 .dark-mode form {
-  background: #23243ae0;
-  box-shadow: 0 2px 8px #12122844;
+  background: #232841e6;
+  box-shadow: 0 2px 8px #111b2440;
 }
 form input, form select, form button {
   padding: 0.5em 0.7em;
@@ -69,22 +77,29 @@ form input, form select, form button {
   background: #fff;
   transition: border 0.2s;
 }
+.dark-mode form input,
+.dark-mode form select,
+.dark-mode form button {
+  background: #191b26;
+  color: #e3e3e3;
+  border: 1px solid #3b445c;
+}
 form input:focus, form select:focus {
-  border-color: #3282ff;
+  border-color: #232841;
   outline: none;
 }
 form button[type="submit"] {
-  background: linear-gradient(90deg, #3282ff, #7e6fff 80%);
+  background: linear-gradient(90deg, #232841, #375ba1 80%);
   color: #fff;
   border: none;
   font-weight: bold;
   cursor: pointer;
   min-width: 110px;
-  box-shadow: 0 2px 7px #3282ff22;
+  box-shadow: 0 2px 7px #23284122;
   transition: background 0.3s;
 }
 form button[type="submit"]:hover {
-  background: linear-gradient(90deg, #5eaaff, #8e7fff 100%);
+  background: linear-gradient(90deg, #3b445c, #436ab8 100%);
 }
 form button[type="button"] {
   background: #c3c3c3;
@@ -93,10 +108,14 @@ form button[type="button"] {
   min-width: 90px;
   cursor: pointer;
 }
+.dark-mode form button[type="button"] {
+  background: #303552;
+  color: #e3e3e3;
+}
 form input[list] {
   width: 180px;
 }
-form input[type="date"], form input[type="number"], form select {
+form input[type="date"], form input[type="text"], form select {
   min-width: 120px;
   max-width: 170px;
 }
@@ -108,30 +127,6 @@ form button {
   flex: 1 1 90px;
   min-width: 0;
 }
-.sort-row {
-  display: flex;
-  align-items: center;
-  gap: 0.8em;
-  justify-content: flex-end;
-  max-width: 860px;
-  margin: 0.7em auto 0.3em;
-  font-size: 1rem;
-}
-.sort-row label {
-  font-weight: bold;
-  color: #3282ff;
-}
-.sort-row select {
-  border: 1.5px solid #3282ff;
-  border-radius: 7px;
-  padding: 0.3em 1.2em 0.3em 0.8em;
-  font-size: 1.05em;
-  background: #fff;
-  color: #222;
-}
-.dark-mode .sort-row label {
-  color: #95c0ff;
-}
 .table-container {
   overflow-x: auto;
   margin: 0.5em auto 0;
@@ -141,7 +136,7 @@ form button {
   box-shadow: 0 1px 5px #b2ceff22;
 }
 .dark-mode .table-container {
-  background: #23243a;
+  background: #191b26;
 }
 table {
   border-collapse: collapse;
@@ -157,16 +152,41 @@ th, td {
 th {
   background: #e7f3ff;
   font-weight: 700;
-  color: #3282ff;
+  color: #232841;
   cursor: pointer;
   transition: background 0.2s;
   font-size: 1.05em;
+  user-select: none;
+  position: relative;
+}
+.dark-mode th {
+  background: #232841;
+  color: #c9e1fc;
+}
+th .sort-arrow {
+  font-size: 0.9em;
+  vertical-align: middle;
+  margin-left: 4px;
+  color: #232841;
+}
+.dark-mode th .sort-arrow {
+  color: #c9e1fc;
 }
 tr.expired {
-  background-color: #ffd2da;
+  background-color: #38202a;
+  color: #f0b4b4;
 }
 tr.expiring {
-  background-color: #fff8be;
+  background-color: #353021;
+  color: #e9dcaa;
+}
+.dark-mode tr.expired {
+  background-color: #38202a;
+  color: #f0b4b4;
+}
+.dark-mode tr.expiring {
+  background-color: #353021;
+  color: #e9dcaa;
 }
 .legend {
   margin: 1em auto 0.3em;
@@ -177,16 +197,16 @@ tr.expiring {
   display: inline-block;
   width: 16px;
   height: 13px;
-  border: 1px solid #3282ff;
+  border: 1px solid #232841;
   vertical-align: middle;
   border-radius: 3px;
   margin-right: 4px;
 }
 .expired.legend-box {
-  background-color: #ffd2da;
+  background-color: #38202a;
 }
 .expiring.legend-box {
-  background-color: #fff8be;
+  background-color: #353021;
 }
 button.edit-btn, button.delete-btn {
   background: none;
@@ -197,7 +217,7 @@ button.edit-btn, button.delete-btn {
 button#exportAlimentiBtn {
   margin: 1.1em auto 2em;
   padding: 0.45em 1.1em;
-  background: linear-gradient(90deg, #28a745, #33e485 90%);
+  background: linear-gradient(90deg, #232841, #3b445c 90%);
   color: white;
   border: none;
   border-radius: 7px;
@@ -205,11 +225,11 @@ button#exportAlimentiBtn {
   font-weight: 600;
   cursor: pointer;
   display: block;
-  box-shadow: 0 2px 7px #28a74519;
+  box-shadow: 0 2px 7px #23284119;
   transition: background 0.25s;
 }
 button#exportAlimentiBtn:hover {
-  background: linear-gradient(90deg, #2ecc71, #4be7ac 100%);
+  background: linear-gradient(90deg, #3b445c, #232841 100%);
 }
 button#themeToggle {
   background: none;
@@ -221,7 +241,7 @@ section.hidden {
   display: none;
 }
 @media (max-width: 900px) {
-  .main-heading, .table-container, form, .sort-row, .legend {
+  .main-heading, .table-container, form, .legend {
     max-width: 99vw;
   }
   table {
@@ -240,12 +260,6 @@ section.hidden {
     border-radius: 10px;
     font-size: 0.98rem;
     max-width: 99vw;
-  }
-  .sort-row {
-    gap: 0.4em;
-    font-size: 0.95em;
-    padding: 0 0.2em;
-    margin-top: 0.4em;
   }
   table, th, td {
     font-size: 0.91rem;
