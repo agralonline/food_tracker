@@ -280,3 +280,22 @@ section.hidden {
     box-shadow: 0 1px 4px #aabbee22;
   }
 }
+@media (max-width: 600px) {
+  .table-container {
+    overflow-x: auto;
+    width: 100vw;
+    min-width: 0;
+  }
+  table {
+    min-width: 720px;
+    width: 720px;
+  }
+  form {
+    position: relative;
+    z-index: 2;
+    background: #191b26e6;
+  }
+  body {
+    overflow-x: hidden;
+  }
+}
