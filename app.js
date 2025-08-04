@@ -11,16 +11,19 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const alimentiSection = document.getElementById('alimentiSection');
 const foodForm = document.getElementById('foodForm');
 const foodTableBody = document.querySelector('#foodTable tbody');
 const exportAlimentiBtn = document.getElementById('exportAlimentiBtn');
-const alimentiBtn = document.getElementById('alimentiBtn');
+const sortBy = document.getElementById('sortBy');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+const prodottoList = document.getElementById('prodottoList');
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
-const cancelEditBtn = document.getElementById('cancelEditBtn');
 
 let editingId = null;
+let allItems = [];
+let sortField = 'scadenza';
+let sortAsc = true;
 
 // Set default date to today for "data"
 function setDefaultToday() {
@@ -46,33 +49,46 @@ function resetForm(){
   cancelEditBtn.style.display = 'none';
 }
 
-function renderItems(items){
-  const now = new Date();
-  const msInDay = 24*60*60*1000;
+function getUniqueProducts(items) {
+  const set = new Set();
+  items.forEach(i => {
+    if (i.prodotto && i.prodotto.trim()) set.add(i.prodotto.trim());
+  });
+  return Array.from(set).sort();
+}
 
-  // Sort: expired first, then expiring soon, then fresh
-  items.sort((a,b) => {
-    const aExp = new Date(a.scadenza);
-    const bExp = new Date(b.scadenza);
-    const aDiff = aExp - now;
-    const bDiff = bExp - now;
-    function priority(diff) {
-      if(diff < 0) return 0;
-      else if(diff <= msInDay) return 1;
-      return 2;
+function fillProductDatalist(items) {
+  prodottoList.innerHTML = "";
+  getUniqueProducts(items).forEach(prod => {
+    const opt = document.createElement("option");
+    opt.value = prod;
+    prodottoList.appendChild(opt);
+  });
+}
+
+function renderItems(items){
+  // sort items based on sortField & sortAsc
+  items.sort((a, b) => {
+    let av = a[sortField] || "";
+    let bv = b[sortField] || "";
+    if(sortField === 'scadenza' || sortField === 'data'){
+      av = av || "9999-12-31"; // always last if missing
+      bv = bv || "9999-12-31";
+      if (av !== bv) return (sortAsc ? av.localeCompare(bv) : bv.localeCompare(av));
+    } else {
+      if (av.toLowerCase() !== bv.toLowerCase())
+        return (sortAsc ? av.toLowerCase().localeCompare(bv.toLowerCase()) : bv.toLowerCase().localeCompare(av.toLowerCase()));
     }
-    const prioA = priority(aDiff);
-    const prioB = priority(bDiff);
-    if(prioA !== prioB) return prioA - prioB;
-    return aExp - bExp;
+    return 0;
   });
 
   foodTableBody.innerHTML = '';
+  const now = new Date();
+  const msInDay = 24*60*60*1000;
   items.forEach(item => {
     const tr = document.createElement('tr');
     const expiry = new Date(item.scadenza);
     const diff = expiry - now;
-
     if(diff < 0){
       tr.classList.add('expired');
     } else if(diff <= msInDay){
@@ -81,7 +97,7 @@ function renderItems(items){
 
     tr.innerHTML = `
       <td>${formatDate(item.data)}</td>
-      <td>${item.prodotto}</td>
+      <td>${item.prodotto || ''}</td>
       <td>${item.quantita || ''}</td>
       <td>${item.processo || ''}</td>
       <td>${formatDate(item.scadenza)}</td>
@@ -97,7 +113,6 @@ function renderItems(items){
   document.querySelectorAll('.edit-btn').forEach(btn => {
     btn.onclick = () => startEdit(btn.dataset.id);
   });
-
   document.querySelectorAll('.delete-btn').forEach(btn => {
     btn.onclick = () => {
       if(confirm('Sei sicuro di voler eliminare questo elemento?')){
@@ -113,10 +128,10 @@ function startEdit(id){
       const data = doc.data();
       editingId = id;
       foodForm.data.value = data.data;
-      foodForm.prodotto.value = data.prodotto;
+      foodForm.prodotto.value = data.prodotto || '';
       foodForm.quantita.value = data.quantita || '';
       foodForm.processo.value = data.processo || '';
-      foodForm.scadenza.value = data.scadenza;
+      foodForm.scadenza.value = data.scadenza || '';
       foodForm.sottovuoto.value = data.sottovuoto || '';
       foodForm.querySelector('button[type=submit]').textContent = 'Salva';
       cancelEditBtn.style.display = '';
@@ -125,11 +140,12 @@ function startEdit(id){
 }
 
 db.collection('items').onSnapshot(snapshot => {
-  const items = [];
+  allItems = [];
   snapshot.forEach(doc => {
-    items.push({id: doc.id, ...doc.data()});
+    allItems.push({id: doc.id, ...doc.data()});
   });
-  renderItems(items);
+  fillProductDatalist(allItems);
+  renderItems(allItems);
 });
 
 foodForm.addEventListener('submit', e => {
@@ -157,15 +173,26 @@ foodForm.addEventListener('submit', e => {
 
 cancelEditBtn.onclick = resetForm;
 
+// Sorting functionality
+sortBy.addEventListener('change', () => {
+  sortField = sortBy.value;
+  sortAsc = true;
+  renderItems(allItems);
+});
+
+// Reverse sort if same sort selected again
+sortBy.addEventListener('dblclick', () => {
+  sortAsc = !sortAsc;
+  renderItems(allItems);
+});
+
 exportAlimentiBtn.onclick = () => {
-  // Use window.jspdf and window.jspdf_autotable
   const doc = new window.jspdf.jsPDF();
   doc.text('Elenco Alimenti', 14, 20);
   const rows = [];
   foodTableBody.querySelectorAll('tr').forEach(tr => {
     const row = [];
     tr.querySelectorAll('td').forEach((td, idx) => {
-      // Skip Azioni column
       if (idx < 6) row.push(td.textContent.trim());
     });
     if(row.length) rows.push(row);
@@ -178,11 +205,6 @@ exportAlimentiBtn.onclick = () => {
   });
 
   doc.save('elenco-alimenti.pdf');
-};
-
-// Only alimenti section now!
-alimentiBtn.onclick = () => {
-  alimentiSection.classList.remove('hidden');
 };
 
 // Theme toggle
