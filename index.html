@@ -22,7 +22,7 @@
       <input type="date" name="data" required>
       <input list="prodottoList" name="prodotto" placeholder="Prodotto" required autocomplete="off">
       <datalist id="prodottoList"></datalist>
-      <input type="number" name="quantita" placeholder="Quantità">
+      <input type="text" name="quantita" placeholder="Quantità">
       <select name="processo" required>
         <option value="">Seleziona Processo</option>
         <option value="Abbatutto -18° C">Abbatutto -18° C</option>
@@ -39,27 +39,16 @@
       <button type="button" id="cancelEditBtn" style="display:none;background:#ccc;color:#222;">Annulla</button>
     </form>
 
-    <div class="sort-row">
-      <label for="sortBy">Ordina per:</label>
-      <select id="sortBy">
-        <option value="scadenza">Scadenza</option>
-        <option value="data">Data</option>
-        <option value="prodotto">Prodotto</option>
-        <option value="processo">Processo</option>
-        <option value="sottovuoto">Sottovuoto</option>
-      </select>
-    </div>
-
     <div class="table-container">
       <table id="foodTable">
         <thead>
           <tr>
-            <th>Data</th>
-            <th>Prodotto</th>
-            <th>Quantità</th>
-            <th>Processo</th>
-            <th>Scadenza</th>
-            <th>Sottovuoto</th>
+            <th data-field="data">Data <span class="sort-arrow"></span></th>
+            <th data-field="prodotto">Prodotto <span class="sort-arrow"></span></th>
+            <th data-field="quantita">Quantità <span class="sort-arrow"></span></th>
+            <th data-field="processo">Processo <span class="sort-arrow"></span></th>
+            <th data-field="scadenza">Scadenza <span class="sort-arrow"></span></th>
+            <th data-field="sottovuoto">Sottovuoto <span class="sort-arrow"></span></th>
             <th>Azioni</th>
           </tr>
         </thead>
