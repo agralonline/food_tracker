@@ -13,60 +13,66 @@
 </head>
 <body>
   <header>
-    <div>
-      <button id="alimentiBtn" class="active">Alimenti</button>
-    </div>
-    <button id="themeToggle">🌓</button>
+    <div></div>
+    <button id="themeToggle" title="Cambia tema">🌓</button>
   </header>
-
-  <section id="alimentiSection">
+  <main>
+    <h1 class="main-heading">Alimenti</h1>
     <form id="foodForm" autocomplete="off">
       <input type="date" name="data" required>
-      <input type="text" name="prodotto" placeholder="Prodotto" required>
+      <input list="prodottoList" name="prodotto" placeholder="Prodotto" required autocomplete="off">
+      <datalist id="prodottoList"></datalist>
       <input type="number" name="quantita" placeholder="Quantità">
-
       <select name="processo" required>
         <option value="">Seleziona Processo</option>
         <option value="Abbatutto -18° C">Abbatutto -18° C</option>
         <option value="Abbatutto +3° C">Abbatutto +3° C</option>
         <option value="Decongelato">Decongelato</option>
       </select>
-
       <input type="date" name="scadenza" required>
-
       <select name="sottovuoto" required>
         <option value="">Sottovuoto?</option>
         <option value="Sì">Sì</option>
         <option value="No">No</option>
       </select>
-
       <button type="submit">Aggiungi</button>
       <button type="button" id="cancelEditBtn" style="display:none;background:#ccc;color:#222;">Annulla</button>
     </form>
 
-    <table id="foodTable">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Prodotto</th>
-          <th>Quantità</th>
-          <th>Processo</th>
-          <th>Scadenza</th>
-          <th>Sottovuoto</th>
-          <th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="sort-row">
+      <label for="sortBy">Ordina per:</label>
+      <select id="sortBy">
+        <option value="scadenza">Scadenza</option>
+        <option value="data">Data</option>
+        <option value="prodotto">Prodotto</option>
+        <option value="processo">Processo</option>
+        <option value="sottovuoto">Sottovuoto</option>
+      </select>
+    </div>
+
+    <div class="table-container">
+      <table id="foodTable">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Prodotto</th>
+            <th>Quantità</th>
+            <th>Processo</th>
+            <th>Scadenza</th>
+            <th>Sottovuoto</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
     <div class="legend">
       <span class="legend-box expired"></span> Scaduti
       <span class="legend-box expiring" style="margin-left:1rem;"></span> In Scadenza
     </div>
-
     <button id="exportAlimentiBtn">📄 Esporta PDF</button>
-  </section>
-
+  </main>
   <script src="app.js"></script>
 </body>
 </html>
